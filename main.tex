@@ -91,6 +91,7 @@ Original papers usually just report 1 single combination of these options, with 
 
 \dungnote{A strong argument against using original models but not combinations is the original models are optimized to get highest accuracy but not taking into account other trade-off such as memory or inference time. Several original models use different complex data augmentation methods. Another issue is original papers report results on different combinations of training sets (2007/2012 PASCAL VOC eval, 2007+2012 PASCAL VOC eval + test, etc}
 
+
 \dungnote{A good thing is the paper at~\cite{huang2017speed} already produced a pipeline to re-train all the setup combinations. Therefore we only need to add/implement parts of new combinations. Source code can be found on Github. Training/Evaluation can be done only once in powerful workstations. We only need to record running time and resource utilization at edge devices.}
 
 \subsection{Meta-Architectures}
@@ -101,7 +102,7 @@ Original papers usually just report 1 single combination of these options, with 
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
 \subsubsection{SSD}
-This one is the fastest meta-architecture. SSD is more flexible~\alnote{what does flexible mean?} than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd}
+This one is the fastest meta-architecture. SSD is more flexible~\alnote{what does flexible mean?} ~\dungnote{in Yolo you can not choose where you get the features, they are fixed in the network. In SSD you can choose whatever layers you want.}than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd}
 
 The original models are trained on PASCAL VOC (2007 and 2012 versions) and 2014 ILRSVRC datasets.
 
@@ -188,6 +189,8 @@ Discussion about trade-off in streaming environment is analyzed and discussed in
 \section{Related Works}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ~\cite{huang2017speed}~do a similar research, but their experiments are limited to powerful workstations, in which the implementations of the models are developed using Tensorflow framework. The accuracy of this paper's models are evaluated on COCO for object detection.
+
+~\cite{shen2018cs}~do an amazing job in English writing. :D
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
