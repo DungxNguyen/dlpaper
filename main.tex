@@ -87,12 +87,13 @@ There are multiple degrees of freedom in an object detector model:
     \item Stride (in feature extractor): reports show that stride is an important factor in the trade-off between performance (in mAP) and running time.
 \end{itemize}
 
-Original papers usually just report 1 single combination of these options, with several variants.
+Original papers usually just report 1 single combination of these options, with several variants such as different image resolutions, the numbers and positions of the candidate boxes, the layers from which features are extracted and the number of layers.
 
 \dungnote{A strong argument against using original models but not combinations is the original models are optimized to get highest accuracy but not taking into account other trade-off such as memory or inference time. Several original models use different complex data augmentation methods. Another issue is original papers report results on different combinations of training sets (2007/2012 PASCAL VOC eval, 2007+2012 PASCAL VOC eval + test, etc}
 
-
 \dungnote{A good thing is the paper at~\cite{huang2017speed} already produced a pipeline to re-train all the setup combinations. Therefore we only need to add/implement parts of new combinations. Source code can be found on Github. Training/Evaluation can be done only once in powerful workstations. We only need to record running time and resource utilization at edge devices.}
+
+\dungnote{Pytorch doesn't have officially hosted trained models for object detections. They only have several image classification models in their official repository.}
 
 \subsection{Meta-Architectures}
 
@@ -102,18 +103,26 @@ Original papers usually just report 1 single combination of these options, with 
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
 \subsubsection{SSD}
-This one is the fastest meta-architecture. SSD is more flexible~\alnote{what does flexible mean?} ~\dungnote{in Yolo you can not choose where you get the features, they are fixed in the network. In SSD you can choose whatever layers you want.}than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd}
+SSD is one of the fastest meta-architectures, along with variants of Yolo. SSD is more flexible~\alnote{what does flexible mean?} ~\dungnote{in Yolo, at least to version 2, you can not choose where you get the features, they are fixed in the network. In SSD you can choose whatever layers you want. By the way, the word ``flexible'' is used by the authors of SSD so I just think it's okay to reuse it}than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd} Because of this attribute, SSD can detect objects at different scales in images.
 
-The original models are trained on PASCAL VOC (2007 and 2012 versions) and 2014 ILRSVRC datasets.
+The original models are trained on PASCAL VOC (2007 and 2012 versions) and 2014 ILRSVRC datasets. The image's resolutions used in the original paper are $229 \times 229$ and $443 \times 443$.
 
-\subsubsection{Faster R-CNN}
+SSD is short for Single Shot Detector, which means that the information flows through only 1 single neural network architecture in the model. It is contrast with other meta-achitectures such as R-CNN based models and R-FCN models, in which they contain at least a second convolutional structure to refine the results from a box proposal generator. Because of this characteristic, SSD is usually faster than R-CNN based models and R-FCN models in several orders of magnitude and consume less resource to run~\cite{huang2017speed}.
+
+SSD does not have box proposal steps but calculate the bounding boxes and object's classes at the same time in a single propagation. The prior boxes are fixed at multiple scales for all images and the network will try to correct the priors to find the most prominent boxes.
+
+From the optimization viewpoint, SSD calculate a single loss function for both bounding box localization and object classification errors using a weighted sum of these components.. 
+
+Because of using prior boxes at different scales but not calculate the box proposals, SSD does not have good performance on small objects~\cite{liu2016ssd}.
+
+\subsubsection{R-CNN and Faster R-CNN}
 Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}.
 
 R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 2012 datasets. 
 
 \subsubsection{DeepMultiBox}
 
-\subsubsection{YOLO and YOLO v2}
+\subsubsection{YOLO and YOLO v2 and YOLO v3}
 YOLO also uses single neural network without proposal generation process, combined with a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.
 
 \subsubsection{R-FCN}
@@ -190,7 +199,6 @@ Discussion about trade-off in streaming environment is analyzed and discussed in
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ~\cite{huang2017speed}~do a similar research, but their experiments are limited to powerful workstations, in which the implementations of the models are developed using Tensorflow framework. The accuracy of this paper's models are evaluated on COCO for object detection.
 
-~\cite{shen2018cs}~do an amazing job in English writing. :D
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
