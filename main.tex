@@ -59,6 +59,8 @@ In this paper, we investigate the trade-off between resource/cost consumption wi
 
 \IEEEpeerreviewmaketitle
 
+\nocite{*}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction and Motivating Application}
@@ -102,6 +104,13 @@ Original papers usually just report 1 single combination of these options, with 
 \alnote{Yolo v3?}
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
+\subsubsection{DeepMultiBox}
+
+
+\subsubsection{YOLO and YOLO v2 and YOLO v3}
+YOLO also uses single neural network without proposal generation process, combined with a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.
+
+
 \subsubsection{SSD}
 SSD is one of the fastest meta-architectures, along with variants of Yolo. SSD is more flexible~\alnote{what does flexible mean?} ~\dungnote{in Yolo, at least to version 2, you can not choose where you get the features, they are fixed in the network. In SSD you can choose whatever layers you want. By the way, the word ``flexible'' is used by the authors of SSD so I just think it's okay to reuse it}than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd} Because of this attribute, SSD can detect objects at different scales in images.
 
@@ -115,15 +124,18 @@ From the optimization viewpoint, SSD calculate a single loss function for both b
 
 Because of using prior boxes at different scales but not calculate the box proposals, SSD does not have good performance on small objects~\cite{liu2016ssd}.
 
-\subsubsection{R-CNN and Faster R-CNN}
-Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}.
+
+\subsubsection{R-CNN }
+R-CNN is a two-stage model to deal with object detection task: to generate bounded boxes and classify the object inside these boxes. The model is composed of three modules: Region Proposal, Feature Extraction and Region Classifications. Region Proposal module can be chosen from many methods already existed in literature, in which R-CNN chooses "selective search" to produce proposals. At inference time, the model produces 2000 proposals for each image. Feature Extraction transforms each region to a fix-sized feature vector by using the output of a hidden layer of a CNN model. Region Classification trains an SVM classifier, using fix-sized feature vectors produced by Feature Extraction.
+
+Feature Extraction training is composed of two phases. The 1st phase is a supervised pre-training on an image classification task using a big dataset (where data are much more available). The 2nd phase replaces the output layer (because the incompatibility of the pre-training dataset and object detection dataset) then initializes the connection of last hidden layer with the new output layer and trains with box-bounded regions and their labels. A region's label is assigned to the ground-truth box's label for which they have more than 0.5 IoU overlap.
+
+In the Region Classification, positive examples are ground-truth regions while negative examples are regions with less than 0.3 IoU overlap with the ground-truth ones.
 
 R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 2012 datasets. 
 
-\subsubsection{DeepMultiBox}
-
-\subsubsection{YOLO and YOLO v2 and YOLO v3}
-YOLO also uses single neural network without proposal generation process, combined with a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.
+\subsubsection{Faster R-CNN}
+Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}.
 
 \subsubsection{R-FCN}
 R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of the net.
