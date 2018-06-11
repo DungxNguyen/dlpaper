@@ -61,7 +61,6 @@ In this paper, we investigate the trade-off between resource/cost consumption wi
 
 \nocite{*}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction and Motivating Application}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,6 +86,7 @@ There are multiple degrees of freedom in an object detector model:
     \item Box Proposals: Different original paper reports different number of proposals (10 .. 300 for an image of ~300x300 pixels)
     \item Trained Image size: 300 .. 600: R-FCN and Faster R-CNN are fixed at shorter edge. SSD is fixed at both edges.
     \item Stride (in feature extractor): reports show that stride is an important factor in the trade-off between performance (in mAP) and running time.
+    \item Data Augmentation: Methods to transform images (rotation, cropping, etc) to make the models more robust.
 \end{itemize}
 
 Original papers usually just report 1 single combination of these options, with several variants such as different image resolutions, the numbers and positions of the candidate boxes, the layers from which features are extracted and the number of layers.
