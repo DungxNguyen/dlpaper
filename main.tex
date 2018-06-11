@@ -105,6 +105,13 @@ Original papers usually just report 1 single combination of these options, with 
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
 \subsubsection{DeepMultiBox}
+DeepMultiBox is a box-generating model that becomes a basis for many other object deection architectures. Rather than a fully object detection model, it only predicts class-agnostic boxses with confident scores.
+
+DeepMultiBox treats the class-agnostic bounding box as a regression problem of coordinates of boxes and their confident scores. The network predicts K boxes, with K is normally 100 or 200. Each box is described by 5 nodes in the last layer of the network, which are upper-left and bottom-right coordinates and a confident score in range $\{0, 1\}$.
+
+To be faster and better in training, the ground truth boxes are clustered into K priors and the network will use the K priors as initilizations. Then, in the matching steps, rather than using the matches between predictions and ground truth boxes, the network uses the matches between these priors and ground truth ones. This process is called prior matching and is exploited by many other researches.
+
+The original model uses the same neural architecture with AlexNet, only differs at the very top layer of the network. Loss function is calculated as weighted sum of localization errors and confident erros over all K prediction.
 
 
 \subsubsection{YOLO and YOLO v2 and YOLO v3}
