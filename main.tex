@@ -143,6 +143,11 @@ R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of
 \subsubsection{SPPnet}
 Improved version of R-CNN. This meta-architecture is out performed by Fast R-CNN and Faster R-CNN.
 
+SPPnet enhances R-CNN by using a fixed-length feature maps, which are independent from the scale or resolution of images. In the last layers of feature networks, SPPNet applies spatial pyramid pooling layers to different regions of an image to create fixed-length feature maps.
+
+The spatial pyramid pooling layers are placed in between convolutional layers and fully connected layers since convolutional layers can work with an abitrary size of input vectors, while the fully connected layers only work with fixed-length input vectors.
+
+SPPnet has comparable accuracy with R-CNN but much faster in term of inference time.
 \subsection{Feature Extractors}
 
 \subsubsection{MobileNet}
