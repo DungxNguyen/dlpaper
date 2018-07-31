@@ -77,7 +77,22 @@ We illustrate a big picture of deep network object detectors for many different 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-There are multiple degrees of freedom in an object detector model:
+
+Computer vision application requires relatively small amount of pre-processing tasks in comparison with other fields. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
+
+Contrast normalization (~L-2 normalization) makes all data points have the same (or similar) vector size (same norm). It makes learning more feasible because neural units react better with directions in space with different sets of coefs and worse with distance (bias). It is also beneficial to augment the dataset with different transformations of images (like rotating, cropping, adding noise) to have better generalization.
+
+Computer vision exploits convolutional networks to produce state-of-the-art results in many applications, such as image classification or object detection.
+
+Convolutional networks are neural networks that use a convolutional function between input and a kernel. The kernel works like a mask, iterates all over the spatial space of an input layer. Convolutional networks leverages 3 important ideas: sparse connections, parameter sharing and equivariant representations.
+
+Usually, after each convolution layer, there is an activate layer (i.e reclu) and a pooling layer, which aggregate results from several nearby elements. The pooling layer helps increase the invariant of output to input.
+
+Pooling is a special step in convolutional layer. It groups several elements and applies a function to them. Spatial function works with nearby elements in spatial space, while multi-channel pool groups elements from independently learned parameters (from different kernel).
+
+Convolutional networks create very huge capacity networks, but constraints the weights to be mostly zeros (because kernels are relatively small in sizes) and equal to other (many parts of data input shares same kernel weights).
+
+There are multiple degrees of freedom in object detection architectures:
 
 \begin{itemize}
     \item Meta-Architecture: SSD, DeepMultiBox, R-FCN, Faster R-CNN, YOLO, ...
@@ -171,36 +186,57 @@ This is a very light-weighted deep learning network~\cite{shen2018cs}
 
 \subsubsection{XNOR Net}
 This is a variant of binary weights network, operations in convolution layers are approximated by bit-wise operations (XNOR)~\cite{rastegari2016xnor}.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Model Combinations}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Original Models}
 
-\begin{figure*}[htpb]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Design and Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In this section, we describe the general approaches to resolve our motivating application and analyze the strength and weakness of the solutions.
+
+*Decribe how a big picture is slpitted into small images*
+\begin{figure}[htpb]
 	  \centering
-	  \includegraphics[width=1\textwidth]{original_models_1}
-	  \caption{Original combinations reported in other researches.}
-	  \label{fig:original_combinations}
-\end{figure*}
+	  \includegraphics[width=0.5\textwidth]{sample_image}
+	  \caption{\textbf{Sample synthetic image used for  performance evaluation and profiling}}
+	  \label{fig:sapmle_image}
+\end{figure}
+
+*THe tables that show the effective resolution of models*
+\begin{figure}[htpb]
+	  \centering
+	  \includegraphics[width=0.5\textwidth]{model_input_size}
+	  \caption{\textbf{Effective Input Sizes of different models}}
+	  \label{fig:model_input_size}
+\end{figure}
+
+*Reasoning why splitting into small images is a good tactic*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Devices and Environment Setup}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Devices}
-In this section, we present the comparison between features and cost/power consumption of tested devices
+In this section, we present the comparison between detailed specification devices
 
+\subsubsection{NVIDIA V100}
+
+\subsubsection{NVIDIA P100}
+
+\subsubsection{NVIDIA TX2}
 
 \subsection{Deep Learning Frameworks}
 DeepX Toolkit is a framework used in resource efficiency deep learning optimization.
 
+In this paper, we investigate 2 of common frameworks for deep learning applications: TensorFlow and Pytorch.
+
+*Reasoning why we choose Tensorflow*
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Performance Metrics}
+\section{Performance Metrics and Profiling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Accuracy on ImageNet}
-The common metric to measure accuracy in object detection is mAP.
+The common metric to measure accuracy in object detection is mAP, a common accuracy metric used in computer vision community.
 
 The performance on ImageNet of several models in this paper are reported in original papers and other  researches~\cite{huang2017speed}.
 
@@ -212,6 +248,15 @@ MLPerf, \url{https://mlperf.org/}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experimental Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Inference Time and Accuracy}
+
+\subsection{Memory Consumption and Accuracy}
+
+\subsection{Inference Time and Memory Consumption}
+
+\subsection{Inference Time and Accuracy with restricted Memory Consumption}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Analysis}
