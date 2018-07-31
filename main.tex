@@ -45,7 +45,7 @@
 
 \maketitle
 
-% These two lines add back the page numbers; we may need to remove
+% These two lines add back the page numbers; we may nhttps://v2.overleaf.com/9174271949jhbybhjxjrsbeed to remove
 % before submitting
 \thispagestyle{plain}
 \pagestyle{plain}
@@ -65,6 +65,9 @@ In this paper, we investigate the trade-off between resource/cost consumption wi
 \section{Introduction and Motivating Application}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Deep learning system have become pervasive in the automotive domain. For example, an increasing number of visual inspection tasks in automotive manufacturing is conducted using camera-based systems and different kinds of classifier, detection and segmentation networks. A challenge is the data-intensiveness and computational complexity of these algorithms. One challenge is the deployment of this tools in the business process. As these algorithms are typically run on the edge device to ensure real-time feedback and the ability to react on the results in the business process. At the same time the usage of cloud is important to (i) utilize more complex deep learning models for higher accuracies and (ii) to combine data with other data, such as process and data from further sensors.
+
+
 We aim to compare different families of object detectors in different devices: from state-of-the-art multiple GPUs workstations to resource-limited devices such as mini computers (Raspberry Pi, NIVDIA ...) and mobile devices (iPhone) or deep learning-specialized devices (Amazon DeepLens).
 
 \alnote{Motivate streaming}
@@ -74,6 +77,20 @@ The difficulties of this project come from the differences of deep learning fram
 For our applications, we only consider the test-time performance, which concerns about inference time, deployment time, memory footprint and hardware utilization in test-time only.
 
 We illustrate a big picture of deep network object detectors for many different devices and purposes. Very light-weight devices such as Raspberry Pi require a small network and efficient run time environment to produce minimal memory footprint. Other devices requires real-time processing time to provide smooth user experience, particularly on smartphones. Different applications and devices have their own unique requirements and characteristics. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related Work}
+
+Benchmarking deep learning system is investigated
+
+\begin{itemize}
+    \item MLPerf
+    \item DeepBench
+    \item Huang~\cite{DBLP:journals/corr/HuangRSZKFFWSG016} investigates the speed/accuracy trade-off f
+\end{itemize}
+
+In contrast to the approaches referenced above our benchmark is 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +137,7 @@ Original papers usually just report 1 single combination of these options, with 
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
 \subsubsection{DeepMultiBox}
-DeepMultiBox is a box-generating model that becomes a basis for many other object deection architectures. Rather than a fully object detection model, it only predicts class-agnostic boxses with confident scores.
+DeepMultiBox is a box-generating model that becomes a basis for many other object detection architectures. Rather than a fully object detection model, it only predicts class-agnostic boxes with confident scores.
 
 DeepMultiBox treats the class-agnostic bounding box as a regression problem of coordinates of boxes and their confident scores. The network predicts K boxes, with K is normally 100 or 200. Each box is described by 5 nodes in the last layer of the network, which are upper-left and bottom-right coordinates and a confident score in range $\{0, 1\}$.
 
