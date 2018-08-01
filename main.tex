@@ -79,19 +79,6 @@ For our applications, we only consider the test-time performance, which concerns
 We illustrate a big picture of deep network object detectors for many different devices and purposes. Very light-weight devices such as Raspberry Pi require a small network and efficient run time environment to produce minimal memory footprint. Other devices requires real-time processing time to provide smooth user experience, particularly on smartphones. Different applications and devices have their own unique requirements and characteristics. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Related Work}
-
-Benchmarking deep learning system is investigated
-
-\begin{itemize}
-    \item MLPerf
-    \item DeepBench
-    \item Huang~\cite{DBLP:journals/corr/HuangRSZKFFWSG016} investigates the speed/accuracy trade-off f
-\end{itemize}
-
-In contrast to the approaches referenced above our benchmark is 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -108,6 +95,13 @@ Usually, after each convolution layer, there is an activate layer (i.e reclu) an
 Pooling is a special step in convolutional layer. It groups several elements and applies a function to them. Spatial function works with nearby elements in spatial space, while multi-channel pool groups elements from independently learned parameters (from different kernel).
 
 Convolutional networks create very huge capacity networks, but constraints the weights to be mostly zeros (because kernels are relatively small in sizes) and equal to other (many parts of data input shares same kernel weights).
+
+\begin{figure*}[htpb]
+	  \centering
+	  \includegraphics[width=\textwidth]{original_models}
+	  \caption{\textbf{Original models with their attributes.}}
+	  \label{fig:original_models}
+\end{figure*}
 
 There are multiple degrees of freedom in object detection architectures:
 
@@ -206,7 +200,7 @@ This is a variant of binary weights network, operations in convolution layers ar
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Problem Design and Analysis}
+\section{System Design and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 In this section, we describe the general approaches to resolve our motivating application and analyze the strength and weakness of the solutions.
 
@@ -232,6 +226,13 @@ In this section, we describe the general approaches to resolve our motivating ap
 \section{Devices and Environment Setup}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\subsection{Deep Learning Frameworks}
+DeepX Toolkit is a framework used in resource efficiency deep learning optimization.
+
+In this paper, we investigate 2 of common frameworks for deep learning applications: TensorFlow and Pytorch.
+
+*Reasoning why we choose Tensorflow*
+
 \subsection{Devices}
 In this section, we present the comparison between detailed specification devices
 
@@ -241,13 +242,6 @@ In this section, we present the comparison between detailed specification device
 
 \subsubsection{NVIDIA TX2}
 
-\subsection{Deep Learning Frameworks}
-DeepX Toolkit is a framework used in resource efficiency deep learning optimization.
-
-In this paper, we investigate 2 of common frameworks for deep learning applications: TensorFlow and Pytorch.
-
-*Reasoning why we choose Tensorflow*
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Performance Metrics and Profiling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -255,40 +249,73 @@ In this paper, we investigate 2 of common frameworks for deep learning applicati
 \subsection{Accuracy on ImageNet}
 The common metric to measure accuracy in object detection is mAP, a common accuracy metric used in computer vision community.
 
-The performance on ImageNet of several models in this paper are reported in original papers and other  researches~\cite{huang2017speed}.
+The performance on ImageNet of several models in this paper are reported in original papers and other researches~\cite{huang2017speed}.
 
-
-\subsection{Deep Learning Performance}
-
-MLPerf, \url{https://mlperf.org/}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Experimental Results}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\subsection{Inference Time and Accuracy}
-
-\subsection{Memory Consumption and Accuracy}
 
 \subsection{Inference Time and Memory Consumption}
+In this section, we describe how we define and calculate the inference time and memory consumption of experimental models.
+
+\subsubsection{Inference Time}
+
+\subsubsection{Memory Consumption}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experimental Results and Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, we discuss the experimental results and analyze these results in multiple perspectives and criterias.
+
+\begin{figure}[htpb]
+	  \centering
+	  \includegraphics[width=0.5\textwidth]{experimental_results}
+	  \caption{\textbf{Raw experimental results}}
+	  \label{fig:experimental_results}
+\end{figure}
+
+\subsection{Inference Time and Accuracy}
+This subsection draws a graph of inference time and accuracy of all models with different batch size.
+
+\begin{figure}[htpb]
+	  \centering
+	  \includegraphics[width=0.5\textwidth]{time-memory-accuracy}
+	  \caption{\textbf{Note: Fake diagram. Real diagram will be similar.} The correlaration between inference time and memory and accuracy}
+	  \label{fig:time-memory-accuracy}
+\end{figure}
+
+
+\subsection{Memory Consumption and Accuracy}
+This subsection draws a graph of memory consumption and accuracy of all models with different batch size.
+
+\subsection{Inference Time and Memory Consumption}
+This subsection draws a graph of memory consumption and inference time of all models with different batch size.
 
 \subsection{Inference Time and Accuracy with restricted Memory Consumption}
+This subsection draws a graph of largest batch sizes that fit into a limited amount of memory of all models with their inference time and accuracy.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Analysis}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Discussion about trade-off in streaming environment is analyzed and discussed in this section.
+\subsection{Accuracy within Time Restriction}
+This subsection draws a graph of maximum accuracy that can be achieved by different time restrictions. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Related Works}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ~\cite{huang2017speed}~do a similar research, but their experiments are limited to powerful workstations, in which the implementations of the models are developed using Tensorflow framework. The accuracy of this paper's models are evaluated on COCO for object detection.
 
+Benchmarking deep learning system is investigated
+
+\begin{itemize}
+    \item MLPerf
+    \item DeepBench
+    \item Huang~\cite{DBLP:journals/corr/HuangRSZKFFWSG016} investigates the speed/accuracy trade-off f
+\end{itemize}
+
+In contrast to the approaches referenced above our benchmark is 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \bibliographystyle{unsrt}
 %\bibliographystyle{abbrv}
