@@ -70,6 +70,9 @@ Deep learning system have become pervasive in the automotive domain. For example
 
 We aim to compare different families of object detectors in different devices: from state-of-the-art multiple GPUs workstations to resource-limited devices such as mini computers (Raspberry Pi, NIVDIA ...) and mobile devices (iPhone) or deep learning-specialized devices (Amazon DeepLens).
 
+% Minicomputer -> embedded
+% Devices 
+
 \alnote{Motivate streaming}
 
 The difficulties of this project come from the differences of deep learning framework environments on different devices with different levels of optimization and efficiency, the wide varieties of object detectors, in both meta-architectures and feature extractors. 
@@ -167,8 +170,11 @@ In the Region Classification, positive examples are ground-truth regions while n
 
 R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 2012 datasets. 
 
+\subsubsection{Fast R-CNN}
+Fast R-CNN improves R-CNN and SPP Net by eliminating multi-stage learning. Fast R-CNN uses only one loss function for multi tasks (box creation, object detection). This architecture does not require an additional classifier such as SVM in R-CNN to classify boxes into categories. The classification task is embedded directly into the neural network structure of the model.
+
 \subsubsection{Faster R-CNN}
-Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}.
+Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}. Faster R-CNN is currently state-of-the-art meta-architecture in term of accuracy in object detection. 
 
 \subsubsection{R-FCN}
 R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of the net.
@@ -263,6 +269,8 @@ In this section, we describe how we define and calculate the inference time and 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experimental Results and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% How separated parts ...
 
 In this section, we discuss the experimental results and analyze these results in multiple perspectives and criterias.
 
