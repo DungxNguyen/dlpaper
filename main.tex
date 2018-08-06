@@ -185,6 +185,10 @@ Fast R-CNN still uses an external box proposals creation like R-CNN, which depen
 \subsubsection{Faster R-CNN}
 Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}. Faster R-CNN is currently state-of-the-art meta-architecture in term of accuracy in object detection. Faster R-CNN eliminates the major drawback of Fast R-CNN, which is the dependency of Fast R-CNN on an external box proposals creator. By embedding the box proposal process into the neural network structure, Faster R-CNN increases both efficiency and accuracy of the previous models based on R-CNN.
 
+Using a set of pre-defined anchor boxes as references, Faster R-CNN uses a part of the neural network structure to calculate the candidate box bounds and calls it Regional Proposal Network. This RPN shares components with the object detection network (Fast R-CNN) to utilizes calculated features from images. RPN and object detection network are trained separatedly. In inference time, box proposals are produced by RPN first, and then are passed through object detection network latter to form a 2-stage end-to-end object detector. Faster R-CNN is about an order of magnitude faster than Fast R-CNN while achieve better results on VOC dataset.
+
+
+
 \subsubsection{R-FCN}
 R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of the net.
 
