@@ -174,15 +174,16 @@ R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 
 \subsubsection{Fast R-CNN}
 Fast R-CNN improves R-CNN and SPP Net by eliminating multi-stage learning. Fast R-CNN uses only one loss function for multi tasks (box creation, object detection). This architecture does not require an additional classifier such as SVM in R-CNN to classify boxes into categories. The classification task is embedded directly into the neural network structure of the model.
 
-Fast R-CNN is an improvement architecture based on R-CNN and SPP Net. It uses the fixed-length feature vector from SPP Net to create more efficient features in feature extraction phase. Different from R-CNN, where each box proposal is passed through the network separately, Fast R-CNN passes the whole image through its convolutional network structure once and creates multiple ROI (Region of Interest) layers from multiple box proposals. Each ROI layer is associated with one proposal. The feature vectors extracted from ROI layers are passed through another neural network structure to calculate a single target value (of the loss function) for each box proposal.
+Fast R-CNN is an improvement architecture based on R-CNN and SPP Net. It uses the fixed-length feature vector from SPP Net to create more efficient features in feature extraction phase. Different from R-CNN, where each box proposal is passed through the network separately, Fast R-CNN passes the whole image through its convolutional network structure (VGG16) once and creates multiple ROI (Region of Interest) layers from multiple box proposals. Each ROI layer is associated with one proposal. The feature vectors extracted from ROI layers are passed through another neural network structure to calculate a single target value (of the loss function) for each box proposal.
 
 Fast R-CNN also combines two tasks of object detection (object classification and box regression) into a single loss function. The unified loss function in Fast R-CNN is a weighted sum of a loss function of object classification error and another loss function of box regression error.
 
 Another improvement of Fast R-CNN over R-CNN is using a softmax classifier rather than an SVM model in the final stage of classification. The softmax layers not only improves the accuracy of the model by a small margin but also combines two separated stages of the detector (a conv net and an svm model) in R-CNN into a single neural network structure. It makes the learning phase faster and more efficient, as well as a more straightforward prediction phase. 
 
 Fast R-CNN still uses an external box proposals creation like R-CNN, which depends on an existed algorithm to create candidates for boxes. 
+
 \subsubsection{Faster R-CNN}
-Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}. Faster R-CNN is currently state-of-the-art meta-architecture in term of accuracy in object detection. 
+Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}. Faster R-CNN is currently state-of-the-art meta-architecture in term of accuracy in object detection. Faster R-CNN eliminates the major drawback of Fast R-CNN, which is the dependency of Fast R-CNN on an external box proposals creator. By embedding the box proposal process into the neural network structure, Faster R-CNN increases both efficiency and accuracy of the previous models based on R-CNN.
 
 \subsubsection{R-FCN}
 R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of the net.
