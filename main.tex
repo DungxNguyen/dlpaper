@@ -129,9 +129,9 @@ Original papers usually just report 1 single combination of these options, with 
 
 \subsection{Meta-Architectures}
 
-\alnote{good practical overview: \url{https://github.com/datadynamo/aiconf_ny_2018_pytorch_cv_tutorial/blob/master/AIConf_April2018_PyTorch_Computer_Vision_Part2.pdf}}
+% \alnote{good practical overview: \url{https://github.com/datadynamo/aiconf_ny_2018_pytorch_cv_tutorial/blob/master/AIConf_April2018_PyTorch_Computer_Vision_Part2.pdf}}
 
-\alnote{Yolo v3?}
+% \alnote{Yolo v3?}
 In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
 
 \subsubsection{DeepMultiBox}
@@ -171,6 +171,15 @@ In the Region Classification, positive examples are ground-truth regions while n
 
 R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 2012 datasets. 
 
+\subsubsection{SPPnet}
+SPPNet is an improved version of R-CNN to exploit the features produced by R-CNN convolutional network. This meta-architecture is faster than R-CNN but is out performed by Fast R-CNN and Faster R-CNN.
+
+SPPnet enhances R-CNN by using a fixed-length feature maps, which are independent from the scale or resolution of images. In the last layers of feature networks, SPPNet applies spatial pyramid pooling layers to different regions of an image to create fixed-length feature maps.
+
+The spatial pyramid pooling layers are placed in between convolutional layers and fully connected layers since convolutional layers can work with an abitrary size of input vectors, while the fully connected layers only work with fixed-length input vectors.
+
+SPPnet has comparable accuracy with R-CNN but is much faster in term of inference time. Though being out-performed by other meta-architectures, SPPNet defines a new method to exploit feature vectors produced by convolutional networks. Fixed-length multi-layer feature vectors can capture highly sophisticated information from different scales and also works well with images of different resolutions.
+
 \subsubsection{Fast R-CNN}
 Fast R-CNN improves R-CNN and SPP Net by eliminating multi-stage learning. Fast R-CNN uses only one loss function for multi tasks (box creation, object detection). This architecture does not require an additional classifier such as SVM in R-CNN to classify boxes into categories. The classification task is embedded directly into the neural network structure of the model.
 
@@ -192,16 +201,10 @@ In training time, Faster R-CNN switches between region proposal optimization and
 Compared to Fast R-CNN, Faster R-CNN combines box proposal and object detection into a unified neural network structure, though they are still consisted of 2 phases. It eliminates the use of external algorithms to produce candidate boxes in Fast R-CNN and SPPNet which makes the object detection process faster and more efficient. Faster R-CNN is still state-of-the-art meta architecture at the time this paper is written.
 
 \subsubsection{R-FCN}
-R-FCN improves Faster R-CNN by delaying the cropping process to deeper layers of the net.
+R-FCN alters Faster R-CNN by delaying the cropping process in object detection phase to deeper layers of the network. While Faster R-CNN crops feature vectors directly from feature extractor network, R-FCN keeps passing the output of feature extractor network via another convolutional network structure and only crops its features right before the last layer of its network structure. This approach increases the share neurals between different croppings, which reduces time and computational resources.
 
-\subsubsection{SPPnet}
-Improved version of R-CNN. This meta-architecture is out performed by Fast R-CNN and Faster R-CNN.
+Using the same feature extractor with Faster R-CNN, R-FCN produces comparable accuracy in several common datasets and is up to 20 times faster than Faster R-CNN.
 
-SPPnet enhances R-CNN by using a fixed-length feature maps, which are independent from the scale or resolution of images. In the last layers of feature networks, SPPNet applies spatial pyramid pooling layers to different regions of an image to create fixed-length feature maps.
-
-The spatial pyramid pooling layers are placed in between convolutional layers and fully connected layers since convolutional layers can work with an abitrary size of input vectors, while the fully connected layers only work with fixed-length input vectors.
-
-SPPnet has comparable accuracy with R-CNN but much faster in term of inference time.
 \subsection{Feature Extractors}
 
 \subsubsection{MobileNet}
