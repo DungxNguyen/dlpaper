@@ -37,7 +37,7 @@
 
 \begin{document}
 
-\title{Time-Constrained Processing of Deep Learning Computer Vision Applications in  Automotive Manufacturing}
+\title{Edge Processing of Deep Learning Computer Vision Applications in  Automotive Manufacturing}
 % * <dungx.ngt@gmail.com> 2017-10-02T03:34:15.504Z:
 %
 % ^.
@@ -275,13 +275,17 @@ The common metric to measure accuracy in object detection is mAP, a common accur
 
 The performance on ImageNet of several models in this paper are reported in original papers and other researches~\cite{huang2017speed}.
 
+\dungnote{I will write this part}
 
 \subsection{Inference Time and Memory Consumption}
 In this section, we describe how we define and calculate the inference time and memory consumption of experimental models.
 
+
+
 \subsubsection{Inference Time}
 
 \subsubsection{Memory Consumption}
+In the default configuration, Tensorflow consumes all available GPU memory resources, which mean the memory utilization would be nearly $100\%$ during all run-times.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
