@@ -210,6 +210,11 @@ R-FCN alters Faster R-CNN by delaying the cropping process in object detection p
 Using the same feature extractor with Faster R-CNN, R-FCN produces comparable accuracy in several common datasets and is up to 20 times faster than Faster R-CNN.
 
 \subsection{Feature Extractors}
+Feature Extractors in object detection models are modified structures of image classification neural networks. Instead of producing prediction about classes of images, the network structures are produced only hidden layers. These hidden layers contain abstract information extracted from raw images. Depending on different configurations, an object detection model can select output of different hidden layers of Feature Extractors to feed further layers of its architecture. Common layers are selected to get data from are usually top-most hidden layer or several top hidden layers. These selected layers can be Relu layers and/or Pooling layers and/or fully connected layers. 
+
+There are no clear evidence to interpret those hidden layers of neural networks. The selections of feature layers are usually based on heuristics and experiments. 
+
+Normally, Feature Extractors are trained as fully functional image classification models on large datasets. It is another heuristics that if the image classification models can classify images with high accuracy, their hidden layers should capture useful visual information and they may work well with other computer vision tasks. By illustrating these hidden layers, it can be seen than different neural units response differently with particular objects and shapes, which is an evidence that these hidden layers contain abstract information about visual objects.
 
 \subsubsection{MobileNet}
 MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}
@@ -225,6 +230,8 @@ This is a very light-weighted deep learning network~\cite{shen2018cs}
 
 \subsubsection{XNOR Net}
 This is a variant of binary weights network, operations in convolution layers are approximated by bit-wise operations (XNOR)~\cite{rastegari2016xnor}.
+
+\subsubsection{NAS}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
