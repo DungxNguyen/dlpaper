@@ -218,7 +218,7 @@ Normally, Feature Extractors are trained as fully functional image classificatio
 
 
 \subsubsection{VGG}
-VGG is a popular family of convolutional neural network first developed in 2014. VGG networks are stacks of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing output to a final softmax. Original variants of VGG are VGG16 and VGG19, which have in total 16 and 19 weighted layers respectively. VGG was the state-of-the-art model in image classification in 2014, but quickly become outdated.
+VGG is a popular family of convolutional neural network first developed in 2014. A VGG network is a stack of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing outputs to a final softmax. VGG uses mask windows of size 1x1 and 3x3 in its convolutional layers, and places 2-4 convolutional layers between 2 consecutive max pooling layers. Original variants of VGG are consisted of VGG16 and VGG19, which have in total 16 and 19 weight layers respectively, in which they differ in the number of convolutional layers. VGG was the state-of-the-art model in image classification in 2014, but quickly become outdated.
 
 VGG is considered large in term of number of trainable weights and very slow to train. Though it is now out-performed by more efficient architectures, VGG is still used as a baseline model because of its popularity and simplicity. Pre-trained VGGs are currently bundled with common deep learning frameworks. \dungnote{need citations}.
 
