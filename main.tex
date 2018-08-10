@@ -86,7 +86,9 @@ We illustrate a big picture of deep network object detectors for many different 
 \section{Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Computer vision application requires relatively small amount of pre-processing tasks in comparison with other fields. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
+Traditionally, Computer Vision applications used to be implemented by training machine learning models to low-level features such as SIFT. It requires complex feature engineering tasks to produce effective feature sets for different kinds of application. Nowadays, deep learning techniques are widely adopted due to their simplicity in image processing: They can be applied directly to raw images without complex feature extraction algorithms. Many common tasks such as image classification and object detection can be solved effectively using out-of-the-box deep learning architectures.
+
+Among deep learning applications, Computer vision applications requires relatively small amount of pre-processing tasks in comparison with other fields such as natural language processing or speech recognition. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
 
 Contrast normalization (~L-2 normalization) makes all data points have the same (or similar) vector size (same norm). It makes learning more feasible because neural units react better with directions in space with different sets of coefs and worse with distance (bias). It is also beneficial to augment the dataset with different transformations of images (like rotating, cropping, adding noise) to have better generalization.
 
@@ -107,13 +109,13 @@ Convolutional networks create very huge capacity networks, but constraints the w
 	  \label{fig:original_models}
 \end{figure*}
 
-There are multiple degrees of freedom in object detection architectures:
+Object detection is a popular task that convolutional networks can solve effectively. Many different architectures are proposed in recent years, which have different characteristics. Some models are designed to achieve state-of-the-art performance in accuracy. Several models aim to get reasonable accuracy within limited time and computational resources. There are efforts to build deep learning models for special hardware systems (FPGA) or resource-limited devices such as smartphones. There are multiple degrees of freedom in object detection architectures which affect their accuracy, running time and required resources:
 
 \begin{itemize}
-    \item Meta-Architecture: SSD, DeepMultiBox, R-FCN, Faster R-CNN, YOLO, ...
-    \item Feature Extractor: VGG (multiple versions), Resnet (m), Inception (m), Inception Resnet, MobileNet. At least 6 are reported in~\cite{huang2017speed}. Feature Extractors are pre-trained on ImageNet-CLS (Image Classification task) first, and then are used to initialize the complete networks. 
-    \item Feature Layers: Select which layer(s) of the feature extractor to be used in Meta-Architecture. Several papers select top (deepest) convolutional layer, but other papers encourage to aggregate multiple layers, even fully-connected layers.
-    \item Box Proposals: Different original paper reports different number of proposals (10 .. 300 for an image of ~300x300 pixels)
+    \item Meta-Architecture: SSD, DeepMultiBox, R-FCN, Faster R-CNN, YOLO, ... which is categorized into single stage and 2-stage classes.
+    \item Feature Extractor: VGG (multiple versions), Resnet (m), Inception (m), Inception Resnet, MobileNet. At least 6 are reported in~\cite{huang2017speed}. Feature Extractors are usually image classification networks which are pre-trained on common dataset such as ImageNet-CLS (Image Classification dataset) first, and then are used to initialize the complete networks. 
+    \item Feature Layers: Select which layer(s) of the feature extractor to be used in Meta-Architecture. Several papers select the top (deepest) convolutional layer, but other papers encourage to aggregate multiple layers, even fully-connected layers.
+    \item Box Proposals: Different original paper reports different number of proposals, as well as how to select proposals (10 .. 300 for an image of ~300x300 pixels)
     \item Trained Image size: 300 .. 600: R-FCN and Faster R-CNN are fixed at shorter edge. SSD is fixed at both edges.
     \item Stride (in feature extractor): reports show that stride is an important factor in the trade-off between performance (in mAP) and running time.
     \item Data Augmentation: Methods to transform images (rotation, cropping, etc) to make the models more robust.
