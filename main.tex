@@ -218,17 +218,20 @@ Normally, Feature Extractors are trained as fully functional image classificatio
 
 
 \subsubsection{VGG}
-VGG is a popular family of convolutional neural network first developed in 2014. A VGG network is a stack of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing outputs to a final softmax. VGG uses mask windows of size 1x1 and 3x3 in its convolutional layers, and places 2-4 convolutional layers between 2 consecutive max pooling layers. Original variants of VGG are consisted of VGG16 and VGG19, which have in total 16 and 19 weight layers respectively, in which they differ in the number of convolutional layers. VGG was the state-of-the-art model in image classification in 2014, but quickly become outdated.
+VGG is a popular family of convolutional neural network first developed in 2014. A VGG network is a stack of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing outputs to a final softmax. VGG uses mask windows of size 1x1 and 3x3 in its convolutional layers, and places 2-4 convolutional layers between 2 consecutive max pooling layers. Original variants of VGG are consisted of VGG16 and VGG19, which have in total 16 and 19 weight layers respectively, in which they differ in the number of convolutional layers. VGG was a very deep model and one of the top model in image classification in 2014, then quickly become outdated.
 
 VGG is considered large in term of number of trainable weights and very slow to train. Though it is now out-performed by more efficient architectures, VGG is still used as a baseline model because of its popularity and simplicity. Pre-trained VGGs are currently bundled with common deep learning frameworks. \dungnote{need citations}.
+
+\subsubsection{Resnet}
+Instead of building networks based on straightforward neural units, ResNet uses building blocks to construct its architecture. Each building block is composed of several neural network units, and has its own structure, which is called micro-architecture. Several micro-architectures are proposed, in which the most important one is residual block. In that block, residual component (which is identical to input) is forwarded to a deeper layer of the micro-architecture and is added to the result of the deeper layer to form a new value. Then, combining with other normal units such as Convolutional units, Pooling units, they create a very deep structure of neural network. Popular variants of ResNet contain 50, 101 or 200 layers.
+
+Though ResNet is much deeper than VGG in term of number of layers, many weights inside ResNet are constrained or eliminated by not using fully connected layers as VGG, making the architecture more robust and more efficient. 
+
 
 \subsubsection{MobileNet}
 MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}
 
 \subsubsection{Inception V3}
-
-\subsubsection{Resnet}
-
 \subsubsection{SqueezeNet}
 This is a very light-weighted deep learning network~\cite{shen2018cs}
 
