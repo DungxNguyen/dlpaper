@@ -223,17 +223,18 @@ VGG is a popular family of convolutional neural network first developed in 2014.
 VGG is considered large in term of number of trainable weights and very slow to train. Though it is now out-performed by more efficient architectures, VGG is still used as a baseline model because of its popularity and simplicity. Pre-trained VGGs are currently bundled with common deep learning frameworks. \dungnote{need citations}.
 
 \subsubsection{Resnet}
-Instead of building networks based on straightforward neural units, ResNet uses building blocks to construct its architecture. Each building block is composed of several neural network units, and has its own structure, which is called micro-architecture. Several micro-architectures are proposed, in which the most important one is residual block. In that block, residual component (which is identical to input) is forwarded to a deeper layer of the micro-architecture and is added to the result of the deeper layer to form a new value. Then, combining with other normal units such as Convolutional units, Pooling units, they create a very deep structure of neural network. Popular variants of ResNet contain 50, 101 or 200 layers.
+Instead of building networks based on straightforward neural units, ResNet uses building blocks to construct its architecture. Each building block is composed of several neural network units, and has its own structure, which is called micro-architecture. Several micro-architectures are proposed, in which the most important one is residual block. In that block, residual component (which is identical to input) is forwarded to a deeper layer of the micro-architecture and is added to the result of the deeper layer to form a new value. Residual blocks also utilize batch normalization, a technique that normalize activations of a hidden layers to have zero mean and unit variance. Using these blocks, ResNet creates a very deep structure of neural network. Popular variants of ResNet contain 50, 101 or 200 weight layers.
 
-Though ResNet is much deeper than VGG in term of number of layers, many weights inside ResNet are constrained or eliminated by not using fully connected layers as VGG, making the architecture more robust and more efficient. 
-
-
-\subsubsection{MobileNet}
-MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}
+Though ResNet is much deeper than VGG in term of number of layers, many weights inside ResNet are constrained or eliminated by not using fully connected layers as VGG, making the architecture more robust and more efficient.
 
 \subsubsection{Inception V3}
+Inception variants are also built using micro-architecture blocks as ResNet, but using a different structure. Differ from VGG where all convolutional units in the same layer have the same mask window size, convolutional units within the same layer in Inception may have different mask windown sizes. Moreover, these convolutional units may be stacked in a different ways to produce visual information in multiple scales and combination of scales.  
+
 \subsubsection{SqueezeNet}
-This is a very light-weighted deep learning network~\cite{shen2018cs}
+This is a very light-weighted deep learning network~\cite{shen2018cs} which has a complex training method to produce a relatively small network in term of weights (two orders of magnitude smaller than VGG) but still achieve comparable results in image classification.
+
+\subsubsection{MobileNet}
+MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}. MobileNet utilizes 1x1 conv layer and a special type of convolutional layer called depthwise convolution. Depthwise convolution is a grouped convolution without convolution in channel domain.
 
 \subsubsection{XNOR Net}
 This is a variant of binary weights network, operations in convolution layers are approximated by bit-wise operations (XNOR)~\cite{rastegari2016xnor}.
