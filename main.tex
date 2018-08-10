@@ -134,7 +134,9 @@ Original papers usually just report 1 single combination of these options, with 
 % \alnote{good practical overview: \url{https://github.com/datadynamo/aiconf_ny_2018_pytorch_cv_tutorial/blob/master/AIConf_April2018_PyTorch_Computer_Vision_Part2.pdf}}
 
 % \alnote{Yolo v3?}
-In general, SSD and YOLOv2 are used for fast, low-latency jobs while Faster R-CNN is often used for higher accuracy.
+Meta-architectures in object detection models can be categorized into 2 different classes: single stage and 2-stage. In 2-stage models, images are passed through a first parts to produce box proposals (which are rectangle parts of the input images) and then the proposals are feed into the second stage to predict objects and re-calulate the bounding boxes. In single stage models, input images are passed through the networks once to produce predicted objects and their bounding boxes.
+
+In general, single stage meta-architectures such as SSD and YOLOv2 are used for fast, low-latency jobs while 2-stage meta-architectures as Faster R-CNN and R-FCN are often used for better accuracy.
 
 \subsubsection{DeepMultiBox}
 DeepMultiBox is a box-generating model that becomes a basis for many other object detection architectures. Rather than a fully object detection model, it only predicts class-agnostic boxes with confident scores.
@@ -146,7 +148,7 @@ To be faster and better in training, the ground truth boxes are clustered into K
 The original model uses the same neural architecture with AlexNet, only differs at the very top layer of the network. Loss function is calculated as weighted sum of localization errors and confident erros over all K prediction.
 
 
-\subsubsection{YOLO and YOLO v2 and YOLO v3}
+\subsubsection{YOLO and its variants}
 YOLO also uses single neural network without proposal generation process, combined with a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.
 
 
@@ -157,9 +159,9 @@ The original models are trained on PASCAL VOC (2007 and 2012 versions) and 2014 
 
 SSD is short for Single Shot Detector, which means that the information flows through only 1 single neural network architecture in the model. It is contrast with other meta-achitectures such as R-CNN based models and R-FCN models, in which they contain at least a second convolutional structure to refine the results from a box proposal generator. Because of this characteristic, SSD is usually faster than R-CNN based models and R-FCN models in several orders of magnitude and consume less resource to run~\cite{huang2017speed}.
 
-SSD does not have box proposal steps but calculate the bounding boxes and object's classes at the same time in a single propagation. The prior boxes are fixed at multiple scales for all images and the network will try to correct the priors to find the most prominent boxes.
+SSD does not have box proposal steps but calculate the bounding boxes and object's classes at the same time in a single propagation. The prior boxes (or anchors) are fixed at multiple scales for all images and the network will try to correct the priors to find the most prominent box for each object.
 
-From the optimization viewpoint, SSD calculate a single loss function for both bounding box localization and object classification errors using a weighted sum of these components.. 
+From the optimization viewpoint, SSD calculate a single loss function for both bounding box localization and object classification errors using a weighted sum of 2 loss functions. 
 
 Because of using prior boxes at different scales but not calculate the box proposals, SSD does not have good performance on small objects~\cite{liu2016ssd}.
 
