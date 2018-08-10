@@ -216,10 +216,14 @@ There are no clear evidence to interpret those hidden layers of neural networks.
 
 Normally, Feature Extractors are trained as fully functional image classification models on large datasets. It is another heuristics that if the image classification models can classify images with high accuracy, their hidden layers should capture useful visual information and they may work well with other computer vision tasks. By illustrating these hidden layers, it can be seen than different neural units response differently with particular objects and shapes, which is an evidence that these hidden layers contain abstract information about visual objects.
 
+
+\subsubsection{VGG}
+VGG networks are stacks of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing output to a final softmax. Original variants of VGG are VGG16 and VGG19, which have in total 16 and 19 weighted layers respectively. VGG was the state-of-the-art model in image classification in 2014, but quickly become outdated.
+
+VGG is considered large in term of number of trainable weights and very slow to train. Though it is now out-performed by more efficient architectures, VGG is still used as a baseline model because of its popularity and simplicity. Pre-trained VGGs are currently bundled with common deep learning frameworks. \dungnote{need citations}.
+
 \subsubsection{MobileNet}
 MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}
-
-\subsubsection{VGG (Outdated)}
 
 \subsubsection{Inception V3}
 
@@ -231,7 +235,7 @@ This is a very light-weighted deep learning network~\cite{shen2018cs}
 \subsubsection{XNOR Net}
 This is a variant of binary weights network, operations in convolution layers are approximated by bit-wise operations (XNOR)~\cite{rastegari2016xnor}.
 
-\subsubsection{NAS}
+\subsubsection{NAS }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
