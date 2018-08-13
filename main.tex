@@ -38,9 +38,6 @@
 \begin{document}
 
 \title{Edge Processing of Deep Learning Computer Vision Applications in  Automotive Manufacturing}
-% * <dungx.ngt@gmail.com> 2017-10-02T03:34:15.504Z:
-%
-% ^.
 
 
 \maketitle
@@ -53,8 +50,11 @@
 
 
 \begin{abstract}
-In this paper, we investigate the trade-off between resource/cost consumption with running time and accuracy of different object detector models based on deep neural networks.
-Execution is in an automotive manufacturing environment that places deadlines on the completion of the object detection application.  
+Deep learning models are associated with various deployment challenges: they are typically very compute-intensive and memory-intensive.
+Also, execution in our automotive manufacturing environment requires the input of a very large set of high definition images, and at the same time places runtime deadlines and accuracy requirements on the deep learning-based object detection of the images.
+Meeting all of the user requirements of runtime, accuracy, and resource constraints by a deep learning object detection application is not possible without careful consideration of the choice of model, model parameters, hardware, and environmental support.
+In this paper, we investigate the trade-offs of eighteen popular deep  neural network-based  object detection models on three hardware platforms.  
+We report the trade-offs of resource consumption, runtime, and accuracy for a realistic automotive manufacturing environment.
 \end{abstract}
 
 
@@ -252,7 +252,7 @@ This is a variant of binary weights network, operations in convolution layers ar
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{System Design and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+Complete automated inspection of vehicles based on computer vision imposes requirement on the data collection setup to provide high resolution images that would allow inference of large amount of information. In this report we focus on object detection only, however, the same images are used for measurements of the geometry of the car and finding any surface anomalies. To achieve the high accuracy inspection, the mapping of a single pixel on the image should not exceed 0.1 mm of the inspected area. An average height of the car on the assembly line being approximately 1500 mm needs to be therefore covered by 15000 pixels. This may be achieved by either using a single high resolution camera or multiple lower resolution cameras with the whole height of the car split between several images. Our application benefits from the later solution for several reasons: cost effectiveness of the several smaller resolution cameras over a single high resolution (at the 15000 pixel level), better control over lens distortion at small distance to an object, higher frame rate of cameras with smaller resolution. In addition to these, multi-camera setup allow us to have much better insight into depth information for inspection of the geometry. 
 
 In this section, we describe the general approaches to resolve our motivating application and analyze the strength and weakness of the solutions.
 
