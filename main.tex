@@ -254,25 +254,41 @@ This is a variant of binary weights network, operations in convolution layers ar
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Complete automated inspection of vehicles based on computer vision imposes requirement on the data collection setup to provide high resolution images that would allow inference of large amount of information. In this report we focus on object detection only, however, the same images are used for measurements of the geometry of the car and finding any surface anomalies. To achieve the high accuracy inspection, the mapping of a single pixel on the image should not exceed 0.1 mm of the inspected area. An average height of the car on the assembly line being approximately 1500 mm needs to be therefore covered by 15000 pixels. This may be achieved by either using a single high resolution camera or multiple lower resolution cameras with the whole height of the car split between several images. Our application benefits from the later solution for several reasons: cost effectiveness of the several smaller resolution cameras over a single high resolution (at the 15000 pixel level), better control over lens distortion at small distance to an object, higher frame rate of cameras with smaller resolution. In addition to these, multi-camera setup allow us to have much better insight into depth information for inspection of the geometry. 
 
-In this section, we describe the general approaches to resolve our motivating application and analyze the strength and weakness of the solutions.
+Our design includes five cameras with approximately 3000 pixels of vertical resolution and 4:3 aspect ratio. The full resolution of a single image is much higher than most of the object detection networks support. For this reason we process the full image by dividing it into tiles with the size matching native input size of considered object detection network. The input sizes for all of the considered models is listed in Table \ref{tab:model_input_size}. In this report we do not include overlap between neighbouring tiles, which may affect accuracy of the detection of small objects. However, this report is based on a synthetic data set where every image is built by tiling images from COCO data set on 12:9 grid which provides consistent number of 108 tiles per image. A sample synthetic image used for evaluation and performance testing is shown in Fig. \ref{fig:sample_image}.
 
-*Decribe how a big picture is slpitted into small images*
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{sample_image}
 	  \caption{\textbf{Sample synthetic image used for  performance evaluation and profiling}}
-	  \label{fig:sapmle_image}
+	  \label{fig:sample_image}
 \end{figure}
 
-*THe tables that show the effective resolution of models*
-\begin{figure}[htpb]
-	  \centering
-	  \includegraphics[width=0.5\textwidth]{model_input_size}
-	  \caption{\textbf{Effective Input Sizes of different models}}
-	  \label{fig:model_input_size}
-\end{figure}
-
-*Reasoning why splitting into small images is a good tactic*
+\begin{table}
+\caption{\textbf{Effective Input Sizes of different models}}
+\begin{tabular}{ c | c  }
+Model name & Input size \\
+\hline
+ssd\_mobilenet\_v1\_coco & 300x300  \\
+ssd\_mobilenet\_v2\_coco & 300x300  \\
+ssdlite\_mobilenet\_v1\_coco & 300x300 \\
+ssd\_inception\_v2\_coco & 300x300 \\
+faster\_rcnn\_inception\_v2\_coco & 600:1024  \\
+faster\_rcnn\_resnet50\_coco & 600:1024  \\
+faster\_rcnn\_resnet50\_lowproposals\_coco & 600:1024 \\
+rfcn\_resnet101\_coco & 600:1024\\
+faster\_rcnn\_resnet101\_coco & 600:1024\\
+faster\_rcnn\_resnet101\_lowproposals\_coco &  600:1024\\
+faster\_rcnn\_inception\_resnet\_v2\_atrous\_coco	 &  600:1024\\
+faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco & 600:1024\\
+faster\_rcnn\_nas	&  1200x1200\\
+faster\_rcnn\_nas\_lowproposals\_coco &  800:1365\\
+mask\_rcnn\_inception\_resnet\_v2\_atrous\_coco & 800:1365 \\
+mask\_rcnn\_inception\_v2\_coco	&  800:1365\\
+mask\_rcnn\_resnet101\_atrous\_coco	&  800:1365\\
+mask\_rcnn\_resnet50\_atrous\_coco &  800:1365\\
+\end{tabular}
+\label{tab:model_input_size}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Devices and Environment Setup}
@@ -286,13 +302,21 @@ In this paper, we investigate 2 of common frameworks for deep learning applicati
 *Reasoning why we choose Tensorflow*
 
 \subsection{Devices}
-In this section, we present the comparison between detailed specification devices
+In this section, we describe the devices that are used in this paper: Nvidia's P100, V100, and TX2.
 
-\subsubsection{NVIDIA V100}
+\subsubsection{P100}
 
-\subsubsection{NVIDIA P100}
+Nvidia's Tesla P100 (Pascal) architecture was introduced in 2016. The P100 contains 3,584 CUDA cores. TeraFLOPs for double, single, and half precision are 4.7, 9.3, and 18.7 respectively. The card we tested in this paper had 16 GB of RAM with memory bandwidth of  732 GB/s.
 
-\subsubsection{NVIDIA TX2}
+\subsubsection{V100}
+
+The Tesla V100 (Volta), introduced in 2017, has 5,120 CUDA cores. TeraFLOPs for double, single, and half precision are 7, 14, and 112. RAM is 16 GB with an improved bandwidth of 900 GB/s. In addition to the increased number of CUDA cores, the significant advantage of the V100 over the P100 was the addition of Tensor cores. A Tensor core uses a fused multiply add (FMA) operation in which two half precision 4x4 matrices are multiplied together, and a half or single precision matrix is added to the result. An FMA operation can be performed within one GPU clock cycle. The V100 has 640 Tensor cores.
+
+\subsubsection{Jetson TX2}
+
+The Nvidia's Jetson TX2 has a Pascal GPU with 256 CUDA cores. TeraFLOPs are 1.5 for half precision. Memory is shared with the operating system and is 8 GB with a bandwidth of 59.7 GB/s.
+
+The TX2, along with prior edge devices TK1 and TX2, and the latest edge device Xavier, are designed to run pre-trained models on an embedded device. As such, this paper focuses on examining the mobilenet models for the TX2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Performance Metrics and Profiling}
