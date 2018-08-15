@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{pbox}
 \usepackage{xcolor}
+\usepackage{url}
 %\usepackage[colorlinks]{hyperref}
 %\hypersetup{linkcolor=blue, citecolor=blue, urlcolor=blue}
 
@@ -66,19 +67,19 @@ We report the trade-offs of resource consumption, runtime, and accuracy for a re
 \section{Introduction and Motivating Application}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Deep learning system have become pervasive in the automotive domain. For example, an increasing number of visual inspection tasks in automotive manufacturing is conducted using camera-based systems and different kinds of classifier, detection and segmentation networks. A challenge is the data-intensiveness and computational complexity of these algorithms. One challenge is the deployment of this tools in the business process. As these algorithms are typically run on the edge device to ensure real-time feedback and the ability to react on the results in the business process. At the same time the usage of cloud is important to (i) utilize more complex deep learning models for higher accuracies and (ii) to combine data with other data, such as process and data from further sensors.
+Deep learning system have become pervasive in the automotive domain, e.g. perception in autonomous driving increasingly depends on deep learning powered computer vision. Another example is visual inspection tasks in automotive manufacturing is conducted using camera-based systems and different kinds of classifier, detection and segmentation networks. A challenge is the data-intensiveness and computational complexity of these algorithms. One challenge is the deployment of this tools in the business process. As these algorithms are typically run on the edge device to ensure real-time feedback and the ability to react on the results in the business process. At the same time the usage of cloud is important to (i) utilize more complex deep learning models for higher accuracies and (ii) to combine and merge datasets, such as process and data from further sensors. \alnote{we might night to adjust intro to reflect actual work being done}
 
+In this paper, we focus on inference on the edge and in the cloud. While model training and optimization is heavily investigated, issues related to inference are often neglected. Designing a robuster inference environment that is capable of sustaining high throughputs and low latencies while being capable of selecting the models (e.g. trading of model complexity and accuracy), is challenging task. Another challenge are the different deep learning framework environments on different devices with different levels of optimization and efficiency, the wide varieties of object detectors, in both meta-architectures and feature extractors, and the constraints of the execution environment that imposes hard deadlines on the completion of the object detection methods.
 
-We aim to compare different families of object detectors in different devices: from state-of-the-art multiple GPUs workstations to resource-limited devices such as mini computers (Raspberry Pi, NIVDIA ...) and mobile devices (iPhone) or deep learning-specialized devices (Amazon DeepLens).
+We compare different deep learning techniques on embedded and mobile devices and on powerful server.  We use from state-of-the-art multiple GPUs workstations (Nvidia DGX Station to resource-limited devices such as mini computers (Raspberry Pi, NIVDIA TX2). For the purpose of this study, we utilize a set of pre-trained object detectors, such as MobileNet, Yolo, and Faster-RCNN. For our applications, we only consider the test-time performance, which concerns about inference time, deployment time, memory footprint and hardware utilization in test-time only.
 
 % Minicomputer -> embedded
 % Devices 
+%\alnote{Motivate streaming}
 
-\alnote{Motivate streaming}
 
-The difficulties of this project come from the differences of deep learning framework environments on different devices with different levels of optimization and efficiency, the wide varieties of object detectors, in both meta-architectures and feature extractors, and the constraints of the execution environment that imposes hard deadlines on the completion of the object detection methods.
 
-For our applications, we only consider the test-time performance, which concerns about inference time, deployment time, memory footprint and hardware utilization in test-time only.
+
 
 We illustrate a big picture of deep network object detectors for many different devices and purposes. Very light-weight devices such as Raspberry Pi require a small network and efficient run time environment to produce minimal memory footprint. Other devices requires real-time processing time to provide smooth user experience, particularly on smartphones. Different applications and devices have their own unique requirements and characteristics. 
 
@@ -86,17 +87,19 @@ We illustrate a big picture of deep network object detectors for many different 
 \section{Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Traditionally, Computer Vision applications used to be implemented by training machine learning models to low-level features such as SIFT. It requires complex feature engineering tasks to produce effective feature sets for different kinds of application. Nowadays, deep learning techniques are widely adopted due to their simplicity in image processing: They can be applied directly to raw images without complex feature extraction algorithms. Many common tasks such as image classification and object detection can be solved effectively using out-of-the-box deep learning architectures.
+\alnote{this section could be compressed to focus on the aspects relevant for understanding trade-offs at inference time: computational complexity, IO issues, etc.?}
 
-Among deep learning applications, Computer vision applications requires relatively small amount of pre-processing tasks in comparison with other fields such as natural language processing or speech recognition. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
+Traditionally, computer vision applications used to be implemented by training machine learning models to low-level features such as SIFT. It requires complex feature engineering tasks to produce effective feature sets for different kinds of application. Nowadays, deep learning techniques are widely adopted due to their simplicity in image processing: They can be applied directly to raw images without complex feature extraction algorithms. Many common tasks such as image classification and object detection can be solved effectively using out-of-the-box deep learning architectures.
 
-Contrast normalization (~L-2 normalization) makes all data points have the same (or similar) vector size (same norm). It makes learning more feasible because neural units react better with directions in space with different sets of coefs and worse with distance (bias). It is also beneficial to augment the dataset with different transformations of images (like rotating, cropping, adding noise) to have better generalization.
+Among deep learning applications, computer vision applications requires relatively small amount of pre-processing tasks in comparison with other fields such as natural language processing or speech recognition. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
+
+\alnote{Is the following paragraph needed?} Contrast normalization (~L-2 normalization) makes all data points have the same (or similar) vector size (same norm). It makes learning more feasible because neural units react better with directions in space with different sets of coefs and worse with distance (bias). It is also beneficial to augment the dataset with different transformations of images (like rotating, cropping, adding noise) to have better generalization.
 
 Computer vision exploits convolutional networks to produce state-of-the-art results in many applications, such as image classification or object detection.
 
 Convolutional networks are neural networks that use a convolutional function between input and a kernel. The kernel works like a mask, iterates all over the spatial space of an input layer. Convolutional networks leverages 3 important ideas: sparse connections, parameter sharing and equivariant representations.
 
-Usually, after each convolution layer, there is an activate layer (i.e reclu) and a pooling layer, which aggregate results from several nearby elements. The pooling layer helps increase the invariant of output to input.
+Usually, after each convolution layer, there is an activate layer (i.e relu) and a pooling layer, which aggregate results from several nearby elements. The pooling layer helps increase the invariant of output to input.
 
 Pooling is a special step in convolutional layer. It groups several elements and applies a function to them. Spatial function works with nearby elements in spatial space, while multi-channel pool groups elements from independently learned parameters (from different kernel).
 
@@ -105,11 +108,11 @@ Convolutional networks create very huge capacity networks, but constraints the w
 \begin{figure*}[htpb]
 	  \centering
 	  \includegraphics[width=\textwidth]{original_models}
-	  \caption{\textbf{Original models with their attributes.}}
+	  \caption{\textbf{Original models with their attributes.}\alnote{Need be replaced with our assessment of these Meta-architectures. Should fit to the ones investigated in experiment section}}d
 	  \label{fig:original_models}
 \end{figure*}
 
-Object detection is a popular task that convolutional networks can solve effectively. Many different architectures are proposed in recent years, which have different characteristics. In object detection, a computer vision algorithm try to detect different objects in an input image and draw a rectangle box to localize the bounding area of eachobject. In some perspectives, object detection is consisted of two different tasks: object classification and bounding box regression. An object with its correspondent box is consider correct if (1) it is correctly classified and (2) its bounding box exceeds some levels of overlapping with manually labelled data, usually at least 50\%. Some models are designed to achieve state-of-the-art performance in accuracy. Several models aim to get reasonable accuracy within limited time and computational resources. There are efforts to build deep learning models for special hardware systems (FPGA) or resource-limited devices such as smartphones. There are multiple degrees of freedom in object detection architectures which affect their accuracy, running time and required resources:
+Object detection is a popular task that convolutional networks can solve effectively. Many different architectures are proposed in recent years, which have different characteristics. In object detection, a computer vision algorithm try to detect different objects in an input image and draw a rectangle box to localize the bounding area of each object. In some perspectives, object detection is consisted of two different tasks: object classification and bounding box regression. An object with its correspondent box is consider correct if (1) it is correctly classified and (2) its bounding box exceeds some levels of overlapping with manually labelled data, usually at least 50\%. Some models are designed to achieve state-of-the-art performance in accuracy. Several models aim to get reasonable accuracy within limited time and computational resources. There are efforts to build deep learning models for special hardware systems (FPGA) or resource-limited devices such as smartphones. There are multiple degrees of freedom in object detection architectures which affect their accuracy, running time and required resources:
 
 \begin{itemize}
     \item Meta-Architecture: SSD, DeepMultiBox, R-FCN, Faster R-CNN, YOLO, ... which is categorized into single stage and 2-stage classes.
@@ -222,8 +225,8 @@ Normally, Feature Extractors are trained as fully functional image classificatio
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{vgg16}
-	  \caption{\textbf{VGG16 architecture}. Need source.}
-	  \label{fig:vgg16}
+	  \caption{\textbf{VGG16 architecture}. Need source. \alnote{Why VGG as figure and the other not? We should provide more own figures and not just figures from other papers}
+	  \label{fig:vgg16}}
 \end{figure}
 VGG is a popular family of convolutional neural network first developed in 2014. A VGG network is a stack of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing outputs to a final softmax. VGG uses mask windows of size 1x1 and 3x3 in its convolutional layers, and places 2-4 convolutional layers between 2 consecutive max pooling layers. Original variants of VGG are consisted of VGG16 and VGG19, which have in total 16 and 19 weight layers respectively, in which they differ in the number of convolutional layers. VGG was a very deep model and one of the top model in image classification in 2014, then quickly become outdated.
 
@@ -248,13 +251,16 @@ This is a variant of binary weights network, operations in convolution layers ar
 
 \subsubsection{NAS }
 
+\alnote{Object detection aspects are completely missing from this section}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{System Design and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Complete automated inspection of vehicles based on computer vision imposes requirement on the data collection setup to provide high resolution images that would allow inference of large amount of information. In this report we focus on object detection only, however, the same images are used for measurements of the geometry of the car and finding any surface anomalies. To achieve the high accuracy inspection, the mapping of a single pixel on the image should not exceed 0.1 mm of the inspected area. An average height of the car on the assembly line being approximately 1500 mm needs to be therefore covered by 15000 pixels. This may be achieved by either using a single high resolution camera or multiple lower resolution cameras with the whole height of the car split between several images. Our application benefits from the later solution for several reasons: cost effectiveness of the several smaller resolution cameras over a single high resolution (at the 15000 pixel level), better control over lens distortion at small distance to an object, higher frame rate of cameras with smaller resolution. In addition to these, multi-camera setup allow us to have much better insight into depth information for inspection of the geometry. 
+Complete automated inspection of vehicles based on computer vision imposes requirement on the data collection setup to provide high resolution images that would allow inference of large amount of information. In this paper, we focus on object detection. In the future, we will investigate how the same images can be used for measurements of the geometry of the car and finding any surface anomalies. To achieve the high accuracy inspection, the mapping of a single pixel on the image should not exceed 0.1 mm of the inspected area. An average height of the car on the assembly line being approximately 1500 mm needs to be therefore covered by 15000 pixels. This may be achieved by either using a single high resolution camera or multiple lower resolution cameras with the whole height of the car split between several images. Our application benefits from the later solution for several reasons: cost effectiveness of the several smaller resolution cameras over a single high resolution (at the 15,000 pixel level), better control over lens distortion at small distance to an object, higher frame rate of cameras with smaller resolution. In addition to these, multi-camera setup allow us to have much better insight into depth information for inspection of the geometry. 
 
-Our design includes five cameras with approximately 3000 pixels of vertical resolution and 4:3 aspect ratio. The full resolution of a single image is much higher than most of the object detection networks support. For this reason we process the full image by dividing it into tiles with the size matching native input size of considered object detection network. The input sizes for all of the considered models is listed in Table \ref{tab:model_input_size}. In this report we do not include overlap between neighbouring tiles, which may affect accuracy of the detection of small objects. However, this report is based on a synthetic data set where every image is built by tiling images from COCO data set on 12:9 grid which provides consistent number of 108 tiles per image. A sample synthetic image used for evaluation and performance testing is shown in Fig. \ref{fig:sample_image}.
+Our design includes five cameras with approximately 3,000 pixels of vertical resolution and 4:3 aspect ratio. The full resolution of a single image is much higher than most of the object detection networks support. For this reason we process the full image by dividing it into tiles with the size matching native input size of considered object detection network. The input sizes for all of the considered models is listed in Table \ref{tab:model_input_size}. In this report we do not include overlap between neighbouring tiles, which may affect accuracy of the detection of small objects. However, this report is based on a synthetic data set where every image is built by tiling images from COCO data set on 12:9 grid which provides consistent number of 108 tiles per image. A sample synthetic image used for evaluation and performance testing is shown in Fig. \ref{fig:sample_image}.
+
+\alnote{Non-functional, performance requirements: How many images/sec at what latency do we need to process?}
 
 \begin{figure}[htpb]
 	  \centering
@@ -264,7 +270,7 @@ Our design includes five cameras with approximately 3000 pixels of vertical reso
 \end{figure}
 
 \begin{table}
-\caption{\textbf{Effective Input Sizes of different models}}
+\caption{\textbf{Effective Input Sizes of different models}\alnote{Why are this model input size relevant?}}
 \begin{tabular}{ c | c  }
 Model name & Input size \\
 \hline
@@ -418,14 +424,14 @@ This subsection draws a graph of inference time and accuracy of all models with 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}\alnote{Please put units on axis labels.}}
 	  \label{fig:memory-running}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Batch}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}}
 	  \label{fig:memory-running-batch}
 \end{figure}
 
@@ -433,35 +439,35 @@ This subsection draws a graph of inference time and accuracy of all models with 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Meta}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}}
 	  \label{fig:memory-running-meta}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSBatch}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}}
 	  \label{fig:memory-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}}
 	  \label{fig:running-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSMemory-Batch}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}}
 	  \label{fig:running-memory-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlaration between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?} \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot: \url{https://plot.ly/ggplot2/facet/}}}
 	  \label{fig:running-batch2}
 \end{figure}
 
@@ -487,6 +493,7 @@ Benchmarking deep learning system is investigated
 \begin{itemize}
     \item MLPerf
     \item DeepBench
+    \item Dawnbech
     \item Huang~\cite{DBLP:journals/corr/HuangRSZKFFWSG016} investigates the speed/accuracy trade-off f
 \end{itemize}
 
