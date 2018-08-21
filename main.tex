@@ -38,7 +38,9 @@
 
 \begin{document}
 
-\title{Edge Processing of Deep Learning Computer Vision Applications in  Automotive Manufacturing}
+%\title{Edge Processing of Deep Learning Computer Vision Applications in  Automotive Manufacturing}
+
+\title{Performance and Memory Trade-offs of \\ Deep Learning Object Detection in \\ Fast Streaming High-Definition Images}
 
 
 \maketitle
@@ -51,11 +53,12 @@
 
 
 \begin{abstract}
-Deep learning models are associated with various deployment challenges: they are typically very compute-intensive and memory-intensive.
+Deep learning models are associated with various deployment challenges. They are typically very compute-intensive and memory-intensive.
 Also, execution in our automotive manufacturing environment requires the input of a very large set of high definition images, and at the same time places runtime deadlines and accuracy requirements on the deep learning-based object detection of the images.
 Meeting all of the user requirements of runtime, accuracy, and resource constraints by a deep learning object detection application is not possible without careful consideration of the choice of model, model parameters, hardware, and environmental support.
-In this paper, we investigate the trade-offs of eighteen popular deep  neural network-based  object detection models on three hardware platforms.  
-We report the trade-offs of resource consumption, runtime, and accuracy for a realistic automotive manufacturing environment.
+In this paper, we investigate the trade-offs of eighteen popular deep neural network-based object detection models on three hardware platforms. 
+We describe the model architecture for these models, and
+we report the trade-offs of resource consumption, runtime, and accuracy for a realistic automotive manufacturing environment.
 \end{abstract}
 
 
@@ -67,200 +70,200 @@ We report the trade-offs of resource consumption, runtime, and accuracy for a re
 \section{Introduction and Motivating Application}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Deep learning system have become pervasive in the automotive domain, e.g. perception in autonomous driving increasingly depends on deep learning powered computer vision. Another example is visual inspection tasks in automotive manufacturing is conducted using camera-based systems and different kinds of classifier, detection and segmentation networks. A challenge is the data-intensiveness and computational complexity of these algorithms. One challenge is the deployment of this tools in the business process. As these algorithms are typically run on the edge device to ensure real-time feedback and the ability to react on the results in the business process. At the same time the usage of cloud is important to (i) utilize more complex deep learning models for higher accuracies and (ii) to combine and merge datasets, such as process and data from further sensors. \alnote{we might night to adjust intro to reflect actual work being done}
+Deep learning systems have become pervasive in the automotive domain.
+One example is  perception in autonomous driving, which increasingly depends on deep learning-powered computer vision. 
+Another example is visual inspection tasks in automotive manufacturing, which are conducted using camera-based systems and different kinds of classifier, detection and segmentation networks. 
+The data-intensive nature and computational complexity of these algorithms presents several challenges.
+One challenge is the deployment of appropriate tools into the application environment. 
+It is desirable to execute the algorithms on edge devices to achieve  real-time feedback and the ability for the business application to react to the results. 
+Model and hardware selection have a significant impact on the runtime and accuracy in data-intensive settings.
 
-In this paper, we focus on inference on the edge and in the cloud. While model training and optimization is heavily investigated, issues related to inference are often neglected. Designing a robuster inference environment that is capable of sustaining high throughputs and low latencies while being capable of selecting the models (e.g. trading of model complexity and accuracy), is challenging task. Another challenge are the different deep learning framework environments on different devices with different levels of optimization and efficiency, the wide varieties of object detectors, in both meta-architectures and feature extractors, and the constraints of the execution environment that imposes hard deadlines on the completion of the object detection methods.
-
-We compare different deep learning techniques on embedded and mobile devices and on powerful server.  We use from state-of-the-art multiple GPUs workstations (Nvidia DGX Station to resource-limited devices such as mini computers (Raspberry Pi, NIVDIA TX2). For the purpose of this study, we utilize a set of pre-trained object detectors, such as MobileNet, Yolo, and Faster-RCNN. For our applications, we only consider the test-time performance, which concerns about inference time, deployment time, memory footprint and hardware utilization in test-time only.
+In this paper, we analyze the trade-offs of eighteen object detection models on three different types of GPU hardware platforms that can be deployed on the edge.
+We focus on designing a robust inference environment that is capable of sustaining high throughput and low latency as well as model accuracy that meets the application requirements. 
+We consider a wide variety of object detectors in both meta-architectures and feature extractors.  The constraints of our execution environment imposes hard deadlines on the completion of the object detection methods.
+For the purpose of this study, we utilize a set of pre-trained object detectors. 
+For this study we only consider the test-time performance, which includes inference time, deployment time, memory footprint and hardware utilization in test-time only.
 
 % Minicomputer -> embedded
 % Devices 
 %\alnote{Motivate streaming}
 
+The remainder of this paper describes the model architectures we consider and the impacts to accuracy and runtime, our automotive manufacturing application design, the experimental setup and target performance metrics, and experimental results and analysis.  We include a section on related works and finish with conclusions.
 
-
-
-
-We illustrate a big picture of deep network object detectors for many different devices and purposes. Very light-weight devices such as Raspberry Pi require a small network and efficient run time environment to produce minimal memory footprint. Other devices requires real-time processing time to provide smooth user experience, particularly on smartphones. Different applications and devices have their own unique requirements and characteristics. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Architecture Backgrounds}
+\section{Model Architecture Backgrounds}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\alnote{this section could be compressed to focus on the aspects relevant for understanding trade-offs at inference time: computational complexity, IO issues, etc.?}
+%\alnote{this section could be compressed to focus on the aspects relevant for understanding trade-offs at inference time: computational complexity, IO issues, etc.?}
 
-Traditionally, computer vision applications used to be implemented by training machine learning models to low-level features such as SIFT. It requires complex feature engineering tasks to produce effective feature sets for different kinds of application. Nowadays, deep learning techniques are widely adopted due to their simplicity in image processing: They can be applied directly to raw images without complex feature extraction algorithms. Many common tasks such as image classification and object detection can be solved effectively using out-of-the-box deep learning architectures.
+Traditionally, computer vision applications have required complex feature engineering tasks to produce effective feature sets for different kinds of object detection applications. 
+Today, deep learning techniques can be applied directly to raw images without complex feature extraction algorithms. Many common tasks such as object detection can be solved effectively using out-of-the-box deep learning architectures.
 
-Among deep learning applications, computer vision applications requires relatively small amount of pre-processing tasks in comparison with other fields such as natural language processing or speech recognition. The only required pre-processing is to make sure all pixels are in the same scale. A typical pre-processing task is contrast normalization, which is proportional with L-2 normalization of "each" pic: subtracting the mean and divided by standard deviation. It can be done in global (the whole picture) or local. 
+Among deep learning applications, computer vision applications require a relatively small amount of pre-processing tasks in comparison with other data analysis  such as natural language processing or speech recognition. 
+The only required pre-processing task is to ensure that all pixels are in the same scale. 
+In our experimental environment, which includes a set of fixed-location cameras, all images are the same size and all pixels are in the same scale.
 
-\alnote{Is the following paragraph needed?} Contrast normalization (~L-2 normalization) makes all data points have the same (or similar) vector size (same norm). It makes learning more feasible because neural units react better with directions in space with different sets of coefs and worse with distance (bias). It is also beneficial to augment the dataset with different transformations of images (like rotating, cropping, adding noise) to have better generalization.
+Computer vision exploits convolutional neural networks (CNN) for object detection. 
+Convolutional networks are neural networks that use a convolutional function between input and a kernel. The kernel works like a mask and iterates over the spatial space of an input layer. 
+Object detection is a popular task that CNNs can solve effectively. 
 
-Computer vision exploits convolutional networks to produce state-of-the-art results in many applications, such as image classification or object detection.
 
-Convolutional networks are neural networks that use a convolutional function between input and a kernel. The kernel works like a mask, iterates all over the spatial space of an input layer. Convolutional networks leverages 3 important ideas: sparse connections, parameter sharing and equivariant representations.
+%\begin{figure*}[htpb]
+%	  \centering
+%	  \includegraphics[width=\textwidth]{original_models}
+%	  \caption{\textbf{Original models with their attributes.}\alnote{Need be replaced with our assessment of these Meta-architectures. Should fit to the ones investigated in experiment section}}d
+%	  \label{fig:original_models}
+%\end{figure*}
 
-Usually, after each convolution layer, there is an activate layer (i.e relu) and a pooling layer, which aggregate results from several nearby elements. The pooling layer helps increase the invariant of output to input.
+In object detection, a computer vision algorithm tries to detect different objects in an input image and to draw a rectangularly shaped {\em bounding box} that outlines the area of each object. 
+Object detection consists of two different tasks: object classification and bounding box regression. 
+An object with its corresponding box is consider correct if it is both correctly classified and its bounding box exceeds some level of overlapping with manually labelled data, usually at least 50\%. 
 
-Pooling is a special step in convolutional layer. It groups several elements and applies a function to them. Spatial function works with nearby elements in spatial space, while multi-channel pool groups elements from independently learned parameters (from different kernel).
+One challenge in object detection is that objects of interest may have different locations within the image and may have different aspect ratios.  
+In a na\"{\i}ve approach, the number of bounding boxes that must be considered is exponentially large with respect to the size of the image.  
+As a result, many different object detection architectures have been proposed that reduce the size of the search space for objects of interest or optimize the search in different ways.  
+These different object detection architectures have different characteristics. 
 
-Convolutional networks create very huge capacity networks, but constraints the weights to be mostly zeros (because kernels are relatively small in sizes) and equal to other (many parts of data input shares same kernel weights).
+Some models are designed to achieve state-of-the-art performance in accuracy. 
+Several models aim to get reasonable accuracy within limited time and computational resources. 
+There are efforts to build deep learning models for special hardware systems such as FPGAs, or for resource-limited devices such as smartphones. 
+There are multiple degrees of freedom in object detection architectures that affect their accuracy, running time and required resources.   Some important degrees of freedom in object detection include:
 
-\begin{figure*}[htpb]
-	  \centering
-	  \includegraphics[width=\textwidth]{original_models}
-	  \caption{\textbf{Original models with their attributes.}\alnote{Need be replaced with our assessment of these Meta-architectures. Should fit to the ones investigated in experiment section}}d
-	  \label{fig:original_models}
-\end{figure*}
+\begin{enumerate}
+     \item Meta-architecture.  The choice of meta-architecture, as described below, can have a significant impact on the accuracy and runtime of the model.  
+    \item Feature extractor.   At least six feature extractors are reported in~\cite{huang2017speed}. Feature extractors are usually image classification networks which are pre-trained on some common dataset first, and then are used to initialize the complete networks.  
+    \item Feature layers.  These select which layer(s) of the feature extractor to be used in meta-architecture. Several papers select the top (deepest) convolutional layer, but other papers aggregate multiple layers, even fully-connected layers.
+    \item Box proposals.  Different original papers report a different number of proposals, as well as how to select proposals, for example, from 10 to 300 for an image of 300x300 pixels.
+    \item Trained image size.  Two models we consider, R-FCN and Faster R-CNN are fixed at the shorter edge. SSD is fixed at both edges.
+    \item Stride in the feature extractor.  Reports show that stride is an important factor in the trade-off between performance and running time.
+    \item Data augmentation.  These are methods to transform images, such as rotation or cropping,  to make the models more robust.
+\end{enumerate}
 
-Object detection is a popular task that convolutional networks can solve effectively. Many different architectures are proposed in recent years, which have different characteristics. In object detection, a computer vision algorithm try to detect different objects in an input image and draw a rectangle box to localize the bounding area of each object. In some perspectives, object detection is consisted of two different tasks: object classification and bounding box regression. An object with its correspondent box is consider correct if (1) it is correctly classified and (2) its bounding box exceeds some levels of overlapping with manually labelled data, usually at least 50\%. Some models are designed to achieve state-of-the-art performance in accuracy. Several models aim to get reasonable accuracy within limited time and computational resources. There are efforts to build deep learning models for special hardware systems (FPGA) or resource-limited devices such as smartphones. There are multiple degrees of freedom in object detection architectures which affect their accuracy, running time and required resources:
+The original papers typically report a single combination of these options, with variants such as different image resolutions, the numbers and positions of the candidate boxes, the layers from which features are extracted and the number of layers.  In this evaluation we focus on popular methods with different combinations of  meta-architectures and feature extractors and provide a comparison of meta-architectures and feature extractors.
 
-\begin{itemize}
-    \item Meta-Architecture: SSD, DeepMultiBox, R-FCN, Faster R-CNN, YOLO, ... which is categorized into single stage and 2-stage classes.
-    \item Feature Extractor: VGG (multiple versions), Resnet (m), Inception (m), Inception Resnet, MobileNet. At least 6 are reported in~\cite{huang2017speed}. Feature Extractors are usually image classification networks which are pre-trained on common dataset such as ImageNet-CLS (Image Classification dataset) first, and then are used to initialize the complete networks. 
-    \item Feature Layers: Select which layer(s) of the feature extractor to be used in Meta-Architecture. Several papers select the top (deepest) convolutional layer, but other papers encourage to aggregate multiple layers, even fully-connected layers.
-    \item Box Proposals: Different original paper reports different number of proposals, as well as how to select proposals (10 .. 300 for an image of ~300x300 pixels)
-    \item Trained Image size: 300 .. 600: R-FCN and Faster R-CNN are fixed at shorter edge. SSD is fixed at both edges.
-    \item Stride (in feature extractor): reports show that stride is an important factor in the trade-off between performance (in mAP) and running time.
-    \item Data Augmentation: Methods to transform images (rotation, cropping, etc) to make the models more robust.
-\end{itemize}
 
-Original papers usually just report 1 single combination of these options, with several variants such as different image resolutions, the numbers and positions of the candidate boxes, the layers from which features are extracted and the number of layers.
+%\dungnote{A strong argument against using original models but not combinations is the original models are optimized to get highest accuracy but not taking into account other trade-off such as memory or inference time. Several original models use different complex data augmentation methods. Another issue is original papers report results on different combinations of training sets (2007/2012 PASCAL VOC eval, 2007+2012 PASCAL VOC eval + test, etc}
 
-\dungnote{A strong argument against using original models but not combinations is the original models are optimized to get highest accuracy but not taking into account other trade-off such as memory or inference time. Several original models use different complex data augmentation methods. Another issue is original papers report results on different combinations of training sets (2007/2012 PASCAL VOC eval, 2007+2012 PASCAL VOC eval + test, etc}
+%\dungnote{A good thing is the paper at~\cite{huang2017speed} already produced a pipeline to re-train all the setup combinations. Therefore we only need to add/implement parts of new combinations. Source code can be found on Github. Training/Evaluation can be done only once in powerful workstations. We only need to record running time and resource utilization at edge devices.}
 
-\dungnote{A good thing is the paper at~\cite{huang2017speed} already produced a pipeline to re-train all the setup combinations. Therefore we only need to add/implement parts of new combinations. Source code can be found on Github. Training/Evaluation can be done only once in powerful workstations. We only need to record running time and resource utilization at edge devices.}
-
-\dungnote{Pytorch doesn't have officially hosted trained models for object detections. They only have several image classification models in their official repository.}
+%\dungnote{Pytorch doesn't have officially hosted trained models for object detections. They only have several image classification models in their official repository.}
 
 \subsection{Meta-Architectures}
 
 % \alnote{good practical overview: \url{https://github.com/datadynamo/aiconf_ny_2018_pytorch_cv_tutorial/blob/master/AIConf_April2018_PyTorch_Computer_Vision_Part2.pdf}}
 
 % \alnote{Yolo v3?}
-Meta-architectures in object detection models can be categorized into 2 different classes: single stage and 2-stage. In 2-stage models, images are passed through a first parts to produce box proposals (which are rectangle parts of the input images) and then the proposals are feed into the second stage to predict objects and re-calulate the bounding boxes. In single stage models, input images are passed through the networks once to produce predicted objects and their bounding boxes.
-
-In general, single stage meta-architectures such as SSD and YOLOv2 are used for fast, low-latency jobs while 2-stage meta-architectures as Faster R-CNN and R-FCN are often used for better accuracy.
+Meta-architectures in object detection models can be categorized into two different classes: single stage and 2-stage. In 2-stage models, a first pass of the image produces bounding box proposals and then the box proposals are fed into the second stage to predict objects and re-calculate the bounding boxes. 
+In single stage models, input images are passed through the networks only one time to produce predicted objects and their bounding boxes.  
+In general, single stage meta-architectures are used for fast, low-latency applications while 2-stage meta-architectures are often used for better accuracy, but have longer run times.  
+Since our automotive manufacturing application has fixed deadlines for completion, our goal is to evaluate the methods for both runtime and accuracy so that we can select a method that meets the runtime requirements with the best accuracy.
+We describe and evaluate eight popular meta-architectures:
+%%% Need references on these.
 
 \subsubsection{DeepMultiBox}
-DeepMultiBox is a box-generating model that becomes a basis for many other object detection architectures. Rather than a fully object detection model, it only predicts class-agnostic boxes with confident scores.
+DeepMultiBox is a box-generating model that is the basis for many other object detection architectures. It is not a full object detection model. It predicts class-agnostic boxes with confidence scores.
 
-DeepMultiBox treats the class-agnostic bounding box as a regression problem of coordinates of boxes and their confident scores. The network predicts K boxes, with K is normally 100 or 200. Each box is described by 5 nodes in the last layer of the network, which are upper-left and bottom-right coordinates and a confident score in range $\{0, 1\}$.
+DeepMultiBox treats the class-agnostic bounding box as a regression problem of coordinates of boxes and their confidence scores. The network predicts K boxes, where K is normally 100 or 200. Each box is described by five nodes in the last layer of the network, which are the upper-left and bottom-right coordinates and a confidence score in the range $\{0, 1\}$.
 
-To be faster and better in training, the ground truth boxes are clustered into K priors and the network will use the K priors as initilizations. Then, in the matching steps, rather than using the matches between predictions and ground truth boxes, the network uses the matches between these priors and ground truth ones. This process is called prior matching and is exploited by many other researches.
-
-The original model uses the same neural architecture with AlexNet, only differs at the very top layer of the network. Loss function is calculated as weighted sum of localization errors and confident erros over all K prediction.
-
+To be faster and better in training, the ground truth boxes are clustered into K priors and the network will use the K priors as initializations. Then, in the matching steps, rather than using the matches between predictions and ground truth boxes, the network uses the matches between these priors and ground truth ones. This process is called prior matching and is exploited by many other approaches.
 
 \subsubsection{YOLO and its variants}
-YOLO also uses single neural network without proposal generation process, combined with a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.
-
+YOLO stands for You Only Look Once, and also uses single pass through the neural network.  YOLO uses a customized feature extractor derived from GoogLeNet to predict classes and shapes of objects.  It is one of the fastest meta-architectures.
 
 \subsubsection{SSD}
-SSD is one of the fastest meta-architectures, along with variants of Yolo. SSD is more flexible~\alnote{what does flexible mean?} ~\dungnote{in Yolo, at least to version 2, you can not choose where you get the features, they are fixed in the network. In SSD you can choose whatever layers you want. By the way, the word ``flexible'' is used by the authors of SSD so I just think it's okay to reuse it}than YOLO because it uses prior boxes at different aspect ratio at different scale of feature map.~\cite{liu2016ssd} Because of this attribute, SSD can detect objects at different scales in images.
+SSD, or Single Shot Detector, is also one of the fastest meta-architectures.
+SSD does not have box proposal steps but calculates the bounding boxes and object classes in a single propagation through the neural network.
+The prior boxes are fixed at multiple scales for all images and the network tries to correct the priors to find the most prominent box for each object.
+Because of this attribute, SSD can detect objects at different scales in images.
+However, because it uses prior boxes at different scales but does not calculate the box proposals, SSD does not have good performance on small objects~\cite{liu2016ssd}.
 
-The original models are trained on PASCAL VOC (2007 and 2012 versions) and 2014 ILRSVRC datasets. The image's resolutions used in the original paper are $229 \times 229$ and $443 \times 443$.
+SSD is more able than YOLO to detect objects at different scales because it uses prior boxes at different aspect ratio and at different scales of the feature map~\cite{liu2016ssd}. 
+Some other meta-architectures contain at least a second convolutional structure to refine the results from a box proposal generator. 
+Because of its single propagation, SSD is usually faster than 2-stage models by several orders of magnitude, and also typically consumes fewer memory resources to run~\cite{huang2017speed}.
 
-SSD is short for Single Shot Detector, which means that the information flows through only 1 single neural network architecture in the model. It is contrast with other meta-achitectures such as R-CNN based models and R-FCN models, in which they contain at least a second convolutional structure to refine the results from a box proposal generator. Because of this characteristic, SSD is usually faster than R-CNN based models and R-FCN models in several orders of magnitude and consume less resource to run~\cite{huang2017speed}.
+\subsubsection{R-CNN}
+R-CNN, or Region-based Convolutional Neural Network, executes using three steps.  First, 2000 regions are proposed in the image.  These are determined using a selective search algorithm that greatly reduces the number of bounding boxes that would have been calculated in a more na\"{i}ve CNN method.  Secondly, a CNN method is executed to find features on each of the regions.  Finally, the output of the CNN step is fed into a Support Vector Machine (SVM) classifier using the fixed-sized feature vectors produced by feature extraction.
+The region proposal module can be chosen from many existing methods in the literature.   
 
-SSD does not have box proposal steps but calculate the bounding boxes and object's classes at the same time in a single propagation. The prior boxes (or anchors) are fixed at multiple scales for all images and the network will try to correct the priors to find the most prominent box for each object.
-
-From the optimization viewpoint, SSD calculate a single loss function for both bounding box localization and object classification errors using a weighted sum of 2 loss functions. 
-
-Because of using prior boxes at different scales but not calculate the box proposals, SSD does not have good performance on small objects~\cite{liu2016ssd}.
-
-
-\subsubsection{R-CNN }
-R-CNN is a two-stage model to deal with object detection task: to generate bounded boxes and classify the object inside these boxes. The model is composed of three modules: Region Proposal, Feature Extraction and Region Classifications. Region Proposal module can be chosen from many methods already existed in literature, in which R-CNN chooses "selective search" to produce proposals. At inference time, the model produces 2000 proposals for each image. Feature Extraction transforms each region to a fix-sized feature vector by using the output of a hidden layer of a CNN model. Region Classification trains an SVM classifier, using fix-sized feature vectors produced by Feature Extraction.
-
-Feature Extraction training is composed of two phases. The 1st phase is a supervised pre-training on an image classification task using a big dataset (where data are much more available). The 2nd phase replaces the output layer (because the incompatibility of the pre-training dataset and object detection dataset) then initializes the connection of last hidden layer with the new output layer and trains with box-bounded regions and their labels. A region's label is assigned to the ground-truth box's label for which they have more than 0.5 IoU overlap.
-
-In the Region Classification, positive examples are ground-truth regions while negative examples are regions with less than 0.3 IoU overlap with the ground-truth ones.
-
-R-CNN is originally pre-trained on PASCAL VOC 2007 and fine-tuned on PASCAL VOC 2012 datasets. 
-
-\subsubsection{SPPnet}
-SPPNet is an improved version of R-CNN to exploit the features produced by R-CNN convolutional network. This meta-architecture is faster than R-CNN but is out performed by Fast R-CNN and Faster R-CNN.
-
-SPPnet enhances R-CNN by using a fixed-length feature maps, which are independent from the scale or resolution of images. In the last layers of feature networks, SPPNet applies spatial pyramid pooling layers to different regions of an image to create fixed-length feature maps.
-
-The spatial pyramid pooling layers are placed in between convolutional layers and fully connected layers since convolutional layers can work with an abitrary size of input vectors, while the fully connected layers only work with fixed-length input vectors.
-
-SPPnet has comparable accuracy with R-CNN but is much faster in term of inference time. Though being out-performed by other meta-architectures, SPPNet defines a new method to exploit feature vectors produced by convolutional networks. Fixed-length multi-layer feature vectors can capture highly sophisticated information from different scales and also works well with images of different resolutions.
+\subsubsection{SPP-net}
+SPP-net stands for Spatial Pyramid Pooling in deep convolutional networks, and is an improved version of R-CNN to exploit the features produced by the R-CNN convolutional network. 
+SPP-net enhances R-CNN by using fixed-length feature maps, which are independent from the scale or resolution of images. In the last layers of feature networks, SPP-net applies spatial pyramid pooling layers to different regions of an image to create fixed-length feature maps.
+SPP-net has comparable accuracy with R-CNN but is much faster in term of inference time. 
+The fixed-length multi-layer feature vectors can capture highly detailed information from different scales and also work well with images of different resolutions.
 
 \subsubsection{Fast R-CNN}
-Fast R-CNN improves R-CNN and SPP Net by eliminating multi-stage learning. Fast R-CNN uses only one loss function for multi tasks (box creation, object detection). This architecture does not require an additional classifier such as SVM in R-CNN to classify boxes into categories. The classification task is embedded directly into the neural network structure of the model.
-
-Fast R-CNN is an improvement architecture based on R-CNN and SPP Net. It uses the fixed-length feature vector from SPP Net to create more efficient features in feature extraction phase. Different from R-CNN, where each box proposal is passed through the network separately, Fast R-CNN passes the whole image through its convolutional network structure (VGG16) once and creates multiple ROI (Region of Interest) layers from multiple box proposals. Each ROI layer is associated with one proposal. The feature vectors extracted from ROI layers are passed through another neural network structure to calculate a single target value (of the loss function) for each box proposal.
-
-Fast R-CNN also combines two tasks of object detection (object classification and box regression) into a single loss function. The unified loss function in Fast R-CNN is a weighted sum of a loss function of object classification error and another loss function of box regression error.
-
-Another improvement of Fast R-CNN over R-CNN is using a softmax classifier rather than an SVM model in the final stage of classification. The softmax layers not only improves the accuracy of the model by a small margin but also combines two separated stages of the detector (a conv net and an svm model) in R-CNN into a single neural network structure. It makes the learning phase faster and more efficient, as well as a more straightforward prediction phase. 
-
-Fast R-CNN still uses an external box proposals creation like R-CNN, which depends on an existed algorithm to create candidates for boxes. 
+Fast R-CNN improves R-CNN and SPP-net by eliminating multi-stage learning. 
+Rather than feeding 2000 region proposals to the CNN, Fast R-CNN passes the whole image through its the CNN structure one time and creates multiple region of interest layers from multiple box proposals. 
+Each region of interest layer is associated with one proposal and feature vectors are extracted from the region of interest layers.
+Fast R-CNN combines two tasks of object detection, object classification and box regression, into a single function which is the weighted sum of a loss function of object classification error and another loss function of box regression error.
+Fast R-CNN uses a softmax classifier rather than an SVM model in the final stage of classification. The softmax layers improves the accuracy of the model by a small margin  and makes the learning phase faster and more efficient.
 
 \subsubsection{Faster R-CNN}
-Faster R-CNN, which yields high accuracy object detection results, is a model that derived from R-CNN~\cite{girshick2015fast}. Faster R-CNN is currently state-of-the-art meta-architecture in term of accuracy in object detection. Faster R-CNN eliminates the major drawback of Fast R-CNN, which is the dependency of Fast R-CNN on an external box proposals creator. By embedding the box proposal process into the neural network structure, Faster R-CNN increases both efficiency and accuracy of the previous models based on R-CNN.
-
-Using a set of pre-defined anchor boxes as references, Faster R-CNN uses a part of the neural network structure to calculate the candidate box bounds and calls it Regional Proposal Network. This RPN shares components with the object detection network (Fast R-CNN) to utilizes calculated features from images. RPN and object detection network are trained separatedly. In inference time, box proposals are produced by RPN first, and then are passed through object detection network latter to form a 2-stage end-to-end object detector. Faster R-CNN is about an order of magnitude faster than Fast R-CNN while achieve better results on VOC dataset.
-
-In training time, Faster R-CNN switches between region proposal optimization and object detection optimization. Because both tasks share a portion of the convolutional network, training time converges quickly. In inference time, the image is passed through the shared parts of the network first to produce (1) proposals that may contain objects and (2) feature maps used to predict objects and regress their bounding boxes. After getting results from proposal network, candidates go through another neural network structure to calculate prediction for objects and bounding boxes. The process above means Faster R-CNN is a two-stage detector, which requires 2 phases of computation and 2 seperated neural network sub-structures. 
-
-Compared to Fast R-CNN, Faster R-CNN combines box proposal and object detection into a unified neural network structure, though they are still consisted of 2 phases. It eliminates the use of external algorithms to produce candidate boxes in Fast R-CNN and SPPNet which makes the object detection process faster and more efficient. Faster R-CNN is still state-of-the-art meta architecture at the time this paper is written.
+Faster R-CNN is a model that is derived from R-CNN and which yields high accuracy object detection results~\cite{girshick2015fast}. 
+Faster R-CNN eliminates the major drawback of Fast R-CNN, which is the dependency of Fast R-CNN on an external box proposals creator. 
+By embedding the box proposal process into the neural network structure, Faster R-CNN increases both efficiency and accuracy of the previous models based on R-CNN.  
+Faster R-CNN uses set of pre-defined anchor boxes as references, and then uses a part of the neural network structure to calculate the candidate box bounds.   
+Faster R-CNN requires two phases of computation and two separate neural network sub-structures,
+but it has been shown to be about an order of magnitude faster than Fast R-CNN while achieving better results for some data sets. 
 
 \subsubsection{R-FCN}
-R-FCN alters Faster R-CNN by delaying the cropping process in object detection phase to deeper layers of the network. While Faster R-CNN crops feature vectors directly from feature extractor network, R-FCN keeps passing the output of feature extractor network via another convolutional network structure and only crops its features right before the last layer of its network structure. This approach increases the share neurals between different croppings, which reduces time and computational resources.
-
-Using the same feature extractor with Faster R-CNN, R-FCN produces comparable accuracy in several common datasets and is up to 20 times faster than Faster R-CNN.
+R-FCN stands for Region-based Fully Convolutional Networks.  F-FCN alters Faster R-CNN by delaying the cropping process in the object detection phase to deeper layers of the network. 
+Faster R-CNN crops feature vectors directly from feature extractor network, but R-FCN passes the output of the feature extractor network to another convolutional network structure and only crops its features right before the last layer of its network structure. 
+This approach reduces time and computational resources.
+At the time of this paper, Faster R-CNN is considered to be the state-of-the-art meta-architecture in terms of accuracy in object detection, but R-FCN produces comparable accuracy in several common data sets.
+R-FCN is up to twenty times faster than Faster R-CNN.
 
 \subsection{Feature Extractors}
-Feature Extractors in object detection models are modified structures of image classification neural networks. Instead of producing prediction about classes of images, the network structures are produced only hidden layers. These hidden layers contain abstract information extracted from raw images. Depending on different configurations, an object detection model can select output of different hidden layers of Feature Extractors to feed further layers of its architecture. Common layers are selected to get data from are usually top-most hidden layer or several top hidden layers. These selected layers can be Relu layers and/or Pooling layers and/or fully connected layers. 
+Feature extraction in object detection is the process of identifying local features based on objects of interest.  
+Features are robust to different affine transformations such as translation, scale, rotation, or flips.
+The hidden layers of a CNN contain abstract information that has been extracted from the image, and an
+object detection model can select output from different hidden layers to feed further layers of its architecture.
+There is no clear evidence to interpret the hidden layers of the neural networks, and the selections of feature layers are usually based on heuristics and experiments. 
 
-There are no clear evidence to interpret those hidden layers of neural networks. The selections of feature layers are usually based on heuristics and experiments. 
-
-Normally, Feature Extractors are trained as fully functional image classification models on large datasets. It is another heuristics that if the image classification models can classify images with high accuracy, their hidden layers should capture useful visual information and they may work well with other computer vision tasks. By illustrating these hidden layers, it can be seen than different neural units response differently with particular objects and shapes, which is an evidence that these hidden layers contain abstract information about visual objects.
-
-
-\subsubsection{VGG}
-
-\begin{figure}[htpb]
-	  \centering
-	  \includegraphics[width=0.5\textwidth]{vgg16}
-	  \caption{\textbf{VGG16 architecture}. Need source. \alnote{Why VGG as figure and the other not? We should provide more own figures and not just figures from other papers}
-	  \label{fig:vgg16}}
-\end{figure}
-VGG is a popular family of convolutional neural network first developed in 2014. A VGG network is a stack of multiple convolutional layers with max pooling layers, topped by 3 fully connected layer before producing outputs to a final softmax. VGG uses mask windows of size 1x1 and 3x3 in its convolutional layers, and places 2-4 convolutional layers between 2 consecutive max pooling layers. Original variants of VGG are consisted of VGG16 and VGG19, which have in total 16 and 19 weight layers respectively, in which they differ in the number of convolutional layers. VGG was a very deep model and one of the top model in image classification in 2014, then quickly become outdated.
-
-VGG is considered large in term of number of trainable weights and very slow to train. Though it is now out-performed by more efficient architectures, VGG is still used as a baseline model because of its popularity and simplicity. Pre-trained VGGs are currently bundled with common deep learning frameworks. \dungnote{need citations}.
-
-\subsubsection{Resnet}
-Instead of building networks based on straightforward neural units, ResNet uses building blocks to construct its architecture. Each building block is composed of several neural network units, and has its own structure, which is called micro-architecture. Several micro-architectures are proposed, in which the most important one is residual block. In that block, residual component (which is identical to input) is forwarded to a deeper layer of the micro-architecture and is added to the result of the deeper layer to form a new value. Residual blocks also utilize batch normalization, a technique that normalize activations of a hidden layers to have zero mean and unit variance. Using these blocks, ResNet creates a very deep structure of neural network. Popular variants of ResNet contain 50, 101 or 200 weight layers.
-
-Though ResNet is much deeper than VGG in term of number of layers, many weights inside ResNet are constrained or eliminated by not using fully connected layers as VGG, making the architecture more robust and more efficient.
-
-\subsubsection{Inception V3}
-Inception variants are also built using micro-architecture blocks as ResNet, but using a different structure. Differ from VGG where all convolutional units in the same layer have the same mask window size, convolutional units within the same layer in Inception may have different mask windown sizes. Moreover, these convolutional units may be stacked in a different ways to produce visual information in multiple scales and combination of scales.  
-
-\subsubsection{SqueezeNet}
-This is a very light-weighted deep learning network~\cite{shen2018cs} which has a complex training method to produce a relatively small network in term of weights (two orders of magnitude smaller than VGG) but still achieve comparable results in image classification.
+One popular feature extractor is VGG, which is a deep convolutional neural network for object recognition developed by the Visual Geometry Group (VGG) at Oxford University.
+VGG is considered large in term of number of trainable weights and very slow to train. 
+Though it is now out-performed by newer, more efficient architectures, VGG is mentioned here because it is  still used as a baseline model because of its popularity and simplicity.
+Pre-trained VGGs are currently bundled with common deep learning frameworks.
+In our experiments we consider models with a few common feature extractors, including MobileNet, Resnet, Inception, and NAS.
 
 \subsubsection{MobileNet}
-MobileNet is an efficient deep net that is able to produce relatively light-weight networks but still have reasonable performance. ~\cite{howard2017mobilenets}. MobileNet utilizes 1x1 conv layer and a special type of convolutional layer called depthwise convolution. Depthwise convolution is a grouped convolution without convolution in channel domain.
+MobileNet is an efficient deep neural network that is developed for  mobile and embedded vision applications.
+It is able to produce relatively light-weight networks but still has reasonable performance~\cite{howard2017mobilenets}. 
+MobileNet utilizes a 1~by~1 convolution layer and a special type of convolutional layer called depthwise convolution.
+Three of our tested models utilize MobileNet in combination with variants of the SSD meta-architecture.
 
-\subsubsection{XNOR Net}
-This is a variant of binary weights network, operations in convolution layers are approximated by bit-wise operations (XNOR)~\cite{rastegari2016xnor}.
+\subsubsection{ResNet}
+ResNet stands for deep Residual Network.  Instead of building networks based on single neural units as is done with VGG, ResNet uses building blocks to construct its architecture. 
+Each building block is composed of several neural network units, and has its own structure, which is called a micro-architecture. 
+Several micro-architectures are proposed.  The most important one is the residual block. 
+In that block, residual components are forwarded to a deeper layer of the micro-architecture and are added to the result of the deeper layer to form a new value. 
+ResNet creates a very deep structure of neural networks. 
+Popular variants of ResNet contain 50, 101 or 200 weight layers.
+We test variations of ResNet with several variants of the R-CNN, Faster R-CNN, and R-FCN meta-architectures.
 
-\subsubsection{NAS }
+\subsubsection{Inception}
+The Inception model and name comes from the architecture that was used in the GoogLeNet model that was a state of the art image recognition net when it was released in 2014.
+Inception variants are also built using micro-architecture blocks as ResNet, but using a different structure. 
+Unlike VGG, convolutional units within the same layer in Inception may have different mask window sizes and may be stacked in a different ways to produce information in multiple scales and combination of scales.  
+We test multiple versions of Inception with variants of Faster R-CNN and Mask R-CNN.
 
-\alnote{Object detection aspects are completely missing from this section}
+
+\subsubsection{NAS}
+NAS, or Neural Architecture Search network, is an approach that  has recently been shown to exceed the accuracy of the best human-invented architectures and to run up to 28\% faster.
+% https://arxiv.org/abs/1707.07012
+We test two combinations of NAS with variants of the Faster R-CNN meta-architecture.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{System Design and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Complete automated inspection of vehicles based on computer vision imposes requirement on the data collection setup to provide high resolution images that would allow inference of large amount of information. In this paper, we focus on object detection. In the future, we will investigate how the same images can be used for measurements of the geometry of the car and finding any surface anomalies. To achieve the high accuracy inspection, the mapping of a single pixel on the image should not exceed 0.1 mm of the inspected area. An average height of the car on the assembly line being approximately 1500 mm needs to be therefore covered by 15000 pixels. This may be achieved by either using a single high resolution camera or multiple lower resolution cameras with the whole height of the car split between several images. Our application benefits from the later solution for several reasons: cost effectiveness of the several smaller resolution cameras over a single high resolution (at the 15,000 pixel level), better control over lens distortion at small distance to an object, higher frame rate of cameras with smaller resolution. In addition to these, multi-camera setup allow us to have much better insight into depth information for inspection of the geometry. 
 
-Our design includes five cameras with approximately 3,000 pixels of vertical resolution and 4:3 aspect ratio. The full resolution of a single image is much higher than most of the object detection networks support. For this reason we process the full image by dividing it into tiles with the size matching native input size of considered object detection network. The input sizes for all of the considered models is listed in Table \ref{tab:model_input_size}. In this report we do not include overlap between neighbouring tiles, which may affect accuracy of the detection of small objects. However, this report is based on a synthetic data set where every image is built by tiling images from COCO data set on 12:9 grid which provides consistent number of 108 tiles per image. A sample synthetic image used for evaluation and performance testing is shown in Fig. \ref{fig:sample_image}.
+Our design includes five cameras with approximately 3,000 pixels of vertical resolution and 4:3 aspect ratio. The full resolution of a single image is much higher than most of the object detection networks support. For this reason we process the full image by dividing it into tiles with the size matching native input size of considered object detection network. The input sizes for all of the considered models is listed in Table \ref{tab:model_input_size}. In this paper we do not include overlap between neighboring tiles, which may affect accuracy of the detection of small objects. However, this paper is based on a synthetic data set where every image is built by tiling images from COCO data set on 12:9 grid which provides consistent number of 108 tiles per image. 
+A sample synthetic image used for evaluation and performance testing is shown in Fig. \ref{fig:sample_image}.
 
-\alnote{Non-functional, performance requirements: How many images/sec at what latency do we need to process?}
+%\alnote{Non-functional, performance requirements: How many images/sec at what latency do we need to process?}
 
 \begin{figure}[htpb]
 	  \centering
@@ -269,10 +272,11 @@ Our design includes five cameras with approximately 3,000 pixels of vertical res
 	  \label{fig:sample_image}
 \end{figure}
 
-\begin{table}
-\caption{\textbf{Effective Input Sizes of different models}\alnote{Why are this model input size relevant?}}
-\begin{tabular}{ c | c | c }
-Model name & Input size & Accuracy\\
+\begin{table}[b]
+\caption{\bf Selected Models and Their Input Sizes}
+
+\begin{tabular}{ c | c  }
+Model name & Input size \\
 \hline
 ssd\_mobilenet\_v1\_coco & 300x300 & 21  \\
 ssd\_mobilenet\_v2\_coco & 300x300 & 22 \\
@@ -297,44 +301,48 @@ mask\_rcnn\_resnet50\_atrous\_coco &  800:1365 & 29\\
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Devices and Environment Setup}
+\section{Experimental Environment}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Deep Learning Frameworks}
-DeepX Toolkit is a framework used in resource efficiency deep learning optimization.
+\subsection{Deep Learning Framework and Object Detection Models}
+A number of deep learning frameworks appear in the literature and are available for testing, including Deepx, Pytorch, TensorRT, and TensorFlow.  
+Of these, we found that at the time of our study that only TensorFlow is complete and robust enough to support the range of object detection models that we wish to evaluate.  
 
-In this paper, we investigate 2 of common frameworks for deep learning applications: TensorFlow and Pytorch.
+TensorFlow is an open source machine learning framework with a large user community that includes the support from about fifty companies.
+Models in TensorFlow include official models that are maintained and tested, and utilize the latest stable TensorFlow API.  The TensorFlow model repository also research models that are contributed and maintained by individual researchers, and new models are continually being added to the repository.  We select eighteen research object detection models for use in TensorFlow that were available at the time of the start of this study.
+The models we use have all been pre-trained on the Common Objects in Context (COCO) dataset.
+%% http://cocodataset.org/
 
-*Reasoning why we choose Tensorflow*
+The selected models are listed in Table~\ref{tab:model_input_size}.
+As shown in Table~\ref{tab:model_input_size}, the selected models include several combinations of meta-architectures and feature extractors.  
+The expected input size of the model is a parameter that we use in the configuration of the experimental testing.
 
 \subsection{Devices}
-In this section, we describe the devices that are used in this paper: Nvidia's P100, V100, and TX2.
+Although a number of low-cost technologies have been promoted for use in edge computing, such as Raspberry PI and mobile phones, our initial testing indicated that the very low cost platforms were not robust enough to support processing of the high-definition images for our application.  
+We test three types of GPU processor for our application: Nvidia V100, Nvidia P100, and Nvidia Jetson TX2.
 
-\subsubsection{P100}
-
-Nvidia's Tesla P100 (Pascal) architecture was introduced in 2016. The P100 contains 3,584 CUDA cores. TeraFLOPs for double, single, and half precision are 4.7, 9.3, and 18.7 respectively. The card we tested in this paper had 16 GB of RAM with memory bandwidth of  732 GB/s.
-
-\subsubsection{V100}
+\subsubsection{Nvidia V100}
 
 The Tesla V100 (Volta), introduced in 2017, has 5,120 CUDA cores. TeraFLOPs for double, single, and half precision are 7, 14, and 112. RAM is 16 GB with an improved bandwidth of 900 GB/s. In addition to the increased number of CUDA cores, the significant advantage of the V100 over the P100 was the addition of Tensor cores. A Tensor core uses a fused multiply add (FMA) operation in which two half precision 4x4 matrices are multiplied together, and a half or single precision matrix is added to the result. An FMA operation can be performed within one GPU clock cycle. The V100 has 640 Tensor cores.
 
-\subsubsection{Jetson TX2}
+\subsubsection{Nvidia P100}
+
+Nvidia's Tesla P100 (Pascal) architecture was introduced in 2016. The P100 contains 3,584 CUDA cores. TeraFLOPs for double, single, and half precision are 4.7, 9.3, and 18.7 respectively. The card we tested in this paper had 16 GB of RAM with memory bandwidth of  732 GB/s.
+
+
+\subsubsection{Nvidia Jetson TX2}
 
 The Nvidia's Jetson TX2 has a Pascal GPU with 256 CUDA cores. TeraFLOPs are 1.5 for half precision. Memory is shared with the operating system and is 8 GB with a bandwidth of 59.7 GB/s.
-
-The TX2, along with prior edge devices TK1 and TX2, and the latest edge device Xavier, are designed to run pre-trained models on an embedded device. As such, this paper focuses on examining the mobilenet models for the TX2.
+The TX2, along with prior edge devices TK1 and TX2, and the latest edge device Xavier, are designed to run pre-trained models on an embedded device. As such, this paper focuses on evaluating the MobileNet models on the TX2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Performance Metrics and Profiling}
+\subsection{Performance Metrics and Profiling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Accuracy on ImageNet}
+\subssubection{Accuracy on ImageNet}
 The common metric to measure accuracy in object detection is mAP, a common accuracy metric used in computer vision community.
 
 The original performances on ImageNet of several models in this paper are reported in original papers and other researches~\cite{huang2017speed}. Accuracy performances of pre-trained models referred in this paper are reported in Object Detection API's Github repository. We only report these values because due to the differences in configurations, number of iterations or datasets, the accuracies between pre-trained models provided by Tensorflow's Object Detection API may not be consistent with original works.
-
-\subsection{Inference Time and Memory Consumption}
-In this section, we describe how we define and calculate the inference time and memory consumption of experimental models.
 
 \subsubsection{Inference Time}
 We calculate the average inference time per 1 test image ($2500 \times 2500$ pixels). Our inference time only includes splitting a test image into multiple tiles and making predictions from all tiles. Inference time does not include loading images from persistent storage devices, decoding images (for example, JPEG, if necessary), transforming images into Numpy tensors. Inference time ends when the results of object detection are calculated as output of detection graphs, in term of lists of tensors.
@@ -424,14 +432,14 @@ This subsection draws a graph of inference time and accuracy of all models with 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning}
-	  \caption{\textbf{The correlation between inference time and memory}\alnote{Please put units on axis labels.}}
+	  \caption{\textbf{The correlation between memory and inference time with batch size of 1}\alnote{Please put units on axis labels.}}
 	  \label{fig:memory-running}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Batch}
-	  \caption{\textbf{The correlation between inference time and memory}}
+	  \caption{\textbf{The correlation between memory and inference time with different batch size}}
 	  \label{fig:memory-running-batch}
 \end{figure}
 
@@ -439,37 +447,35 @@ This subsection draws a graph of inference time and accuracy of all models with 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Meta}
-	  \caption{\textbf{The correlation between inference time and memory}}
+	  \caption{\textbf{The correlation between memory and running time with different meta architecture and batch size of 1.}}
 	  \label{fig:memory-running-meta}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSBatch}
-	  \caption{\textbf{The correlation between inference time and memory}}
+	  \caption{\textbf{The correlation between memory and batch size}}
 	  \label{fig:memory-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlation between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and batch size}}
 	  \label{fig:running-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSMemory-Batch}
-	  \caption{\textbf{The correlation between inference time and memory}}
+	  \caption{\textbf{The correlation between inference time and memory with different batch sizes}}
 	  \label{fig:running-memory-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlation between inference time and memory}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?} \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot:
-              % \url{https://plot.ly/ggplot2/facet/}
-            }}
+	  \caption{\textbf{The correlation between inference time and batch size}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?} \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot: \url{https://plot.ly/ggplot2/facet/}}}
 	  \label{fig:running-batch2}
 \end{figure}
 
