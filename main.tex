@@ -275,7 +275,7 @@ A sample synthetic image used for evaluation and performance testing is shown in
 \begin{table}[b]
 \caption{\bf Selected Models and Their Input Sizes}
 
-\begin{tabular}{ c | c  }
+\begin{tabular}{ c | c | c }
 Model name & Input size \\
 \hline
 ssd\_mobilenet\_v1\_coco & 300x300 & 21  \\
@@ -339,7 +339,7 @@ The TX2, along with prior edge devices TK1 and TX2, and the latest edge device X
 \subsection{Performance Metrics and Profiling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subssubection{Accuracy on ImageNet}
+\subsubsection{Accuracy on ImageNet}
 The common metric to measure accuracy in object detection is mAP, a common accuracy metric used in computer vision community.
 
 The original performances on ImageNet of several models in this paper are reported in original papers and other researches~\cite{huang2017speed}. Accuracy performances of pre-trained models referred in this paper are reported in Object Detection API's Github repository. We only report these values because due to the differences in configurations, number of iterations or datasets, the accuracies between pre-trained models provided by Tensorflow's Object Detection API may not be consistent with original works.
@@ -475,7 +475,9 @@ This subsection draws a graph of inference time and accuracy of all models with 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlation between inference time and batch size}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?} \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot: \url{https://plot.ly/ggplot2/facet/}}}
+	  \caption{\textbf{The correlation between inference time and batch size}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?}}
+            % \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot:\url{https://plot.ly/ggplot2/facet/}}}
+
 	  \label{fig:running-batch2}
 \end{figure}
 
