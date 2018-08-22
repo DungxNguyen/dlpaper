@@ -183,7 +183,7 @@ Some other meta-architectures contain at least a second convolutional structure 
 Because of its single propagation, SSD is usually faster than 2-stage models by several orders of magnitude, and also typically consumes fewer memory resources to run~\cite{huang2017speed}.
 
 \subsubsection{R-CNN}
-R-CNN, or Region-based Convolutional Neural Network, executes using three steps.  First, 2000 regions are proposed in the image.  These are determined using a selective search algorithm that greatly reduces the number of bounding boxes that would have been calculated in a more na\"{i}ve CNN method.  Secondly, a CNN method is executed to find features on each of the regions.  Finally, the output of the CNN step is fed into a Support Vector Machine (SVM) classifier using the fixed-sized feature vectors produced by feature extraction.
+R-CNN, or Region-based Convolutional Neural Network, executes using three independent steps.  First, 2000 regions are proposed in the image.  These are determined using a selective search algorithm that greatly reduces the number of bounding boxes that would have been calculated in a more na\"{i}ve CNN method.  Secondly, a CNN method is executed to find features on each of the regions.  Finally, the output of the CNN step is fed into a Support Vector Machine (SVM) classifier using the fixed-sized feature vectors produced by feature extraction.
 The region proposal module can be chosen from many existing methods in the literature.   
 
 \subsubsection{SPP-net}
@@ -276,7 +276,7 @@ A sample synthetic image used for evaluation and performance testing is shown in
 \caption{\bf Selected Models and Their Input Sizes}
 
 \begin{tabular}{ c | c | c }
-Model name & Input size \\
+Model name & Input size & Accuracy\\
 \hline
 ssd\_mobilenet\_v1\_coco & 300x300 & 21  \\
 ssd\_mobilenet\_v2\_coco & 300x300 & 22 \\
@@ -332,32 +332,35 @@ Nvidia's Tesla P100 (Pascal) architecture was introduced in 2016. The P100 conta
 
 \subsubsection{Nvidia Jetson TX2}
 
-The Nvidia's Jetson TX2 has a Pascal GPU with 256 CUDA cores. TeraFLOPs are 1.5 for half precision. Memory is shared with the operating system and is 8 GB with a bandwidth of 59.7 GB/s.
-The TX2, along with prior edge devices TK1 and TX2, and the latest edge device Xavier, are designed to run pre-trained models on an embedded device. As such, this paper focuses on evaluating the MobileNet models on the TX2.
+The Nvidia's Jetson TX2 has a Pascal GPU with 256 CUDA cores. TeraFLOPs are 1.5 for half precision. Memory is shared with main memory and is 8 GB with a bandwidth of 59.7 GB/s.
+The TX2, along with prior edge devices TK1 and TX1, and the latest edge device Xavier, are designed to run pre-trained models on an embedded device. As such, this paper focuses on evaluating the MobileNet models on the TX2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Performance Metrics and Profiling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection{Accuracy on ImageNet}
+\subsubsection{Accuracy on COCO Dataset}
 The common metric to measure accuracy in object detection is mAP, a common accuracy metric used in computer vision community.
 
 The original performances on ImageNet of several models in this paper are reported in original papers and other researches~\cite{huang2017speed}. Accuracy performances of pre-trained models referred in this paper are reported in Object Detection API's Github repository. We only report these values because due to the differences in configurations, number of iterations or datasets, the accuracies between pre-trained models provided by Tensorflow's Object Detection API may not be consistent with original works.
 
 \subsubsection{Inference Time}
-We calculate the average inference time per 1 test image ($2500 \times 2500$ pixels). Our inference time only includes splitting a test image into multiple tiles and making predictions from all tiles. Inference time does not include loading images from persistent storage devices, decoding images (for example, JPEG, if necessary), transforming images into Numpy tensors. Inference time ends when the results of object detection are calculated as output of detection graphs, in term of lists of tensors.
+We calculate the average inference time per each test image ($2500 \times 2500$ pixels). Our inference time only includes splitting a test image into multiple tiles and making predictions from all tiles. Inference time does not include loading images from persistent storage devices, decoding images (for example, JPEG, if necessary), transforming images into Numpy tensors. Inference time ends when the results of object detection are calculated as output of detection graphs, in term of lists of tensors.
+
+Because in reality, there are many factors affect the inference time, such as the executions of other processes, the share utilization of memory bandwidth or even some environment scheduled tasks such as garbage collection, it is not trivial to replicate these events and measure realistic timings. In our experiment, we set up a clean environment with no application processes that consume system resoures other than system ones. X (X Server) process is the only process other than our processes that consume GPU at measurement. Usually, X consumes almost $0\%$ CPU utilization and about $ 20 - 25 $ MB of GPU memory.
+
+
+We report in this paper the best measurements of the average inference time per each image. It is the most optimistics values that we believe that realistic environments can not be better than that.
 
 \subsubsection{GPU Memory Consumption}
-In the default configuration, Tensorflow consumes all available GPU memory resources, which mean the memory utilization would be nearly $100\%$ during all run-times. Therefore, we examine the memory consumption with Tensorflow configuration $Growth = True$ in order to let the framework to start with minimum memory and to grow its memory when necessary. 
+In the default configuration, Tensorflow consumes all available GPU memory resources, which mean the memory utilization would be nearly $100\%$ during all run-times. Therefore, we examine the memory consumption with Tensorflow configuration $Growth = True$ in order to let the framework to start with minimum memory and to grow its memory when necessary. We define the memory utilization as the amount of GPU memory is allocated to evalutade processes. This definition is different from NVIDIA's definition, which reports the percentage of maximum memory bandwidth is currently utilized at each sampling.
 
-The memory consumption then is reported to each model as the maximum amount of allocated memory during each experiment. We sample the allocated memory values with an interval of 0.01 second.
+The memory consumption then is reported to each model as the maximum amount of allocated memory during each experiment. We sample the allocated memory values with an interval of 0.01 second. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experimental Results and Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% How separated parts ...
 
 In this section, we discuss the experimental results and analyze these results in multiple perspectives and criterias.
 
@@ -426,29 +429,21 @@ mask\_rcnn\_resnet50\_atrous\_coco                              & Time (sec)    
 \label{table:raw-results}
 \end{table*}
 
-\subsection{Inference Time and Accuracy}
-This subsection draws a graph of inference time and accuracy of all models with different batch size.
+In our charts, we group SSD and SSD Lite models into a single group named ``ssd''. Other groups, named ``faster'', ``rfcn'', ``mask'' represent Faster R-CNN, R-FCN and Mask R-CNN respectively.
+
+\begin{figure*}[htpb]
+	  \centering
+	  \includegraphics[width=\textwidth]{TimeVSAccuracy}
+	  \caption{\textbf{The correlation between best inference time of all batch size and respective accuracy of models.} The numbers indicate the batch size that achieve the best inference time, while the sizes of them show how much memory they consume.}
+	  \label{fig:time-accuracy}
+\end{figure*}
 
 \begin{figure}[htpb]
 	  \centering
-	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning}
-	  \caption{\textbf{The correlation between memory and inference time with batch size of 1}\alnote{Please put units on axis labels.}}
-	  \label{fig:memory-running}
-\end{figure}
-
-\begin{figure}[htpb]
-	  \centering
-	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Batch}
-	  \caption{\textbf{The correlation between memory and inference time with different batch size}}
-	  \label{fig:memory-running-batch}
-\end{figure}
-
-
-\begin{figure}[htpb]
-	  \centering
-	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Meta}
-	  \caption{\textbf{The correlation between memory and running time with different meta architecture and batch size of 1.}}
-	  \label{fig:memory-running-meta}
+	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-DiffArch-Batch1}
+	  \caption{\textbf{The correlation between memory and inference time on different hardware architectureswith batch size of 1.}
+          }
+	  \label{fig:memory-running-diff-arch}
 \end{figure}
 
 \begin{figure}[htpb]
@@ -460,43 +455,91 @@ This subsection draws a graph of inference time and accuracy of all models with 
 
 \begin{figure}[htpb]
 	  \centering
-	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
+	  \includegraphics[width=0.5\textwidth]{RunningVSBatch}
 	  \caption{\textbf{The correlation between inference time and batch size}}
 	  \label{fig:running-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
-	  \includegraphics[width=0.5\textwidth]{RunningTimeVSMemory-Batch}
-	  \caption{\textbf{The correlation between inference time and memory with different batch sizes}}
-	  \label{fig:running-memory-batch}
+	  \includegraphics[width=0.5\textwidth]{BestBatch-DiffArch}
+	  \caption{\textbf{The histogram of batch sizes that produce best inference time}}
+	  \label{fig:bestbatch-diffarch}
 \end{figure}
 
-\begin{figure}[htpb]
-	  \centering
-	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
-	  \caption{\textbf{The correlation between inference time and batch size}\alnote{Can we do log scale with normal numbers? 2,4, 8,... While doing this I noticed: Why do we use a Minibatch size of 108 and not 128? Power of 2?}}
-            % \alnote{There are a lot of dimension in here? Maybe plot Time and memory usage in a faceted plot:\url{https://plot.ly/ggplot2/facet/}}}
+% 
+% \begin{figure}[htpb]
+% 	  \centering
+% 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Batch}
+% 	  \caption{\textbf{The correlation between memory and inference time with different batch size}}
+% 	  \label{fig:memory-running-batch}
+% \end{figure}
+% 
+% 
+% \begin{figure}[htpb]
+% 	  \centering
+% 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-Meta}
+% 	  \caption{\textbf{The correlation between memory and running time with different meta architecture and batch size of 1.}}
+% 	  \label{fig:memory-running-meta}
+% \end{figure}
+% 
+% \begin{figure}[htpb]
+% 	  \centering
+% 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSMemory-Batch}
+% 	  \caption{\textbf{The correlation between inference time and memory with different batch sizes}}
+% 	  \label{fig:running-memory-batch}
+% \end{figure}
+% 
+% \begin{figure}[htpb]
+% 	  \centering
+% 	  \includegraphics[width=0.5\textwidth]{RunningTimeVSBatch}
+% 	  \caption{\textbf{The correlation between inference time and batch size}
+%           }
+% 
+% 	  \label{fig:running-batch2}
+% \end{figure}
 
-	  \label{fig:running-batch2}
-\end{figure}
+\subsection{Inference Time, Accuracy and Memory on V100}
+Fig.~\ref{fig:time-accuracy} shows that in general, bigger models with larger inference times achieve better accuracies. $faster\_rcnn\_nas$ is the model that both achieves highest accuracy and takes longest time to finish its predictions. Also, because of its complex structure, we can only fit a maximum mini batch size of 2 images into V100's memory.
 
-\subsection{Memory Consumption and Accuracy}
-This subsection draws a graph of memory consumption and accuracy of all models with different batch size.
+Fastest models are based on $SSD$ meta achitecture, which their accuracy performances are about $50\%$ of the best model. With that sacrify in accuracy, these models can process each test image in less that 30 times in comparision with the slowest one.
 
-\subsection{Inference Time and Memory Consumption}
-This subsection draws a graph of memory consumption and inference time of all models with different batch size.
+Most $SSD$ models take less than 4 seconds to process a test image in average. $ssd\_mobilenet\_v1$ is the model that achieves smallest memory consumption, even when we put all tiles into a single mini batch (mini batch size is 108). This model is extremely memory efficient, though it is about 3 times slower than the fastest.
 
-\subsection{Inference Time and Accuracy with restricted Memory Consumption}
-This subsection draws a graph of largest batch sizes that fit into a limited amount of memory of all models with their inference time and accuracy.
+$Faster\ R-CNN$ models in general produce better accuracy than $SSD$ ones, with a trade-off in their inference times. Many of them achive best inference time when mini batch sizes are $16$. Their accuracies mostly lie in between $30$ and $35$. The inference times, however, spread in a long range depending on feature extractors that they implement. The slowest $Faster\ R-CNN$ model takes nearly 60 seconds to process an image, while the fastest one only needs $2$ seconds. The fastest $Faster\ R-CNN$ is constructed with $Inception\ v.2$ feature extractor.
+
+In general, most models in our experiments form a linear relationship between accuracy and inference time (in log scale). It means that the inference times may be approximated by a exponential function of accuracy. We leave this hypothesis in our future works.
+
+\subsection{Memory Consumption and Inference Time on different hardware devices}
+Fig.~\ref{fig:memory-running-diff-arch} shows the relationship between memory consumption and inference time of all models on different hardware architectures. In general, it shows that V100 processes faster than P100 and utilize GPU memory better than P100.
+
+There is an interesting finding that for some models, running on V100 is not only faster but also requires less memory. Some $SSD$ models can run with less than 4GB of memory on V100, while all models requires at least 5GB on P100. These values are very important in a scenario that an application needs to load multiple models into GPU in the same time. If a model can properly work with less than 4GB on V100, it is possible to load 4 instances of that model to process data in parallel. On P100, because it only has 12GB of RAM, we can at most load 2 instaces of the most lightweight model at the same time.
+
+Also, most of models when running on V100 takes less than 6GB with batch size of 1 and no model takes up to 8GB. Then, with 16 GB of RAM, V100 may have enough memory space for at least 2 instances of any model to run in the same time. Meanwhile, many models on P100 take more than 6GB, which is equals to half of its total memory. It makes P100 can only load at most 1 instance of several models, most of them are $Faster\ R-CNN$. 
+
+\subsection{Memory Consumption and Batch Size}
+Fig.\ref{fig:memory-batch} shows the changes in memory consumption with different batch sizes on V100. In general, bigger batch sizes require more memory, but not linearly. 
+
+Most $Faster\ R-CNN$ runs out of memory before batch size of 32, while all $SSD$ models can easily fit the memory even with batch size of 108. 
+
+For all models that can fit a mini batch size of 108 tiles into memory, we all observe an interesting behavior. When increasing the mini batch size from 64 to 108, memory consumption for $SSD$ models remain the same. For several other models, they reach their maximum memory consumption at mini batch size of 64, which allocate almost all GPU memory and then decrease their memory consumption with minibatch size of 108. 
+
+\subsection{Inference Time and Batch Size}
+Fig.\ref{fig:running-batch} show the changes in running time with different batch sizes on V100. Almost all models run significantly faster when increasing their mini batch sizes from 1 to 2, 4 and 8, if they do not run out of memory.
+
+After 8, increasing the mini batch sizes of many models may not decrease their inference time. We notice that many models achieves the best running time with mini batch size of 16 in Fig.\ref{fig:bestbatch-diffarch}. Many models can not fit bigger mini batch size of 16 into the GPU memory as can be seen from Fig.\ref{fig:memory-batch}. Other models seem to have enough overhead in computation to eliminate the advantages of bigger mini batch sizes.
+
+It also can be seen that on V100, there are more models work best with bigger mini batch sizes than on P100. The reason is V100 has bigger amount of memory to fit bigger mini batch sizes.
 
 \subsection{Accuracy within Time Restriction}
-This subsection draws a graph of maximum accuracy that can be achieved by different time restrictions. 
+One important aspect of our application is to define the best accuracy we can get with some restrictions in time. Fig.\ref{fig:time-accuracy} can help us to calculate these values. With time restriction of 4 seconds, the best accuracy we can achieve is about 32-33 mAP. With time restriction of 16 seconds, the best accuracy may increase to 35-36 mAP. Among these models, we may not go faster than that to achive higher accuracy, as it can be seen that the nearest better model (in red) make take more than 20 seconds to process an image and its memory consumption in Fig.\ref{fig:memory-batch} almost be equals to the hardware limits.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Related Works}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-~\cite{huang2017speed}~do a similar research, but their experiments are limited to powerful workstations, in which the implementations of the models are developed using Tensorflow framework. The accuracy of this paper's models are evaluated on COCO for object detection.
+~\cite{huang2017speed}~do a similar research, in which they combine 3 meta architectures with several feature exctractor and evaluate the trade-off between memory and inference time on NVIDIA K40 GPU. This work do not concern the memory consumption of their models.
 
 Benchmarking deep learning system is investigated
 
