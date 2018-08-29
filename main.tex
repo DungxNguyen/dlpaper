@@ -56,7 +56,7 @@
 Deep learning models are associated with various deployment challenges. They are typically very compute-intensive and memory-intensive.
 Also, execution in our automotive manufacturing environment requires the input of a very large set of high definition images, and at the same time places runtime deadlines and accuracy requirements on the deep learning-based object detection of the images.
 Meeting all of the user requirements of runtime, accuracy, and resource constraints by a deep learning object detection application is not possible without careful consideration of the choice of model, model parameters, hardware, and environmental support.
-In this paper, we investigate the trade-offs of eighteen popular deep neural network-based object detection models on three hardware platforms. 
+In this paper, we investigate the trade-offs of the most popular deep neural network-based object detection models on four hardware platforms. 
 We describe the model architecture for these models, and
 we report the trade-offs of resource consumption, runtime, and accuracy for a realistic automotive manufacturing environment.
 \end{abstract}
@@ -273,9 +273,9 @@ A sample synthetic image used for evaluation and performance testing is shown in
 \end{figure}
 
 \begin{table}[b]
-\caption{\bf Selected Models and Their Input Sizes}
+\caption{\bf Selected Models and Their Input Sizes\alnote{Maybe we can use human readable descriptions of the model types/versions. They are all trained on Coco? What is the accuracy column?}}
 
-\begin{tabular}{ c | c | c }
+\begin{tabular}{ p{5.5cm} | c | c }
 Model name & Input size & Accuracy\\
 \hline
 ssd\_mobilenet\_v1\_coco & 300x300 & 21  \\
@@ -532,30 +532,31 @@ After 8, increasing the mini batch sizes of many models may not decrease their i
 It also can be seen that on V100, there are more models work best with bigger mini batch sizes than on P100. The reason is V100 has bigger amount of memory to fit bigger mini batch sizes.
 
 \subsection{Accuracy within Time Restriction}
-One important aspect of our application is to define the best accuracy we can get with some restrictions in time. Fig.\ref{fig:time-accuracy} can help us to calculate these values. With time restriction of 4 seconds, the best accuracy we can achieve is about 32-33 mAP. With time restriction of 16 seconds, the best accuracy may increase to 35-36 mAP. Among these models, we may not go faster than that to achive higher accuracy, as it can be seen that the nearest better model (in red) make take more than 20 seconds to process an image and its memory consumption in Fig.\ref{fig:memory-batch} almost be equals to the hardware limits.
+One important aspect of our application is to define the best accuracy we can get with some restrictions in time. Fig.\ref{fig:time-accuracy} can help us to calculate these values. With time restriction of 4 seconds, the best accuracy we can achieve is about 32-33 mAP. With time restriction of 16 seconds, the best accuracy may increase to 35-36 mAP. Among these models, we may not go faster than that to achieve higher accuracy, as it can be seen that the nearest better model (in red) make take more than 20 seconds to process an image and its memory consumption in Fig.\ref{fig:memory-batch} almost be equals to the hardware limits.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Related Works}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-~\cite{huang2017speed}~do a similar research, in which they combine 3 meta architectures with several feature exctractor and evaluate the trade-off between memory and inference time on NVIDIA K40 GPU. This work do not concern the memory consumption of their models.
 
-Benchmarking deep learning system is investigated
+Understanding the inference performance and trade-offs of machine and deep learning frameworks. MLPerf~\cite{mlperf} is a benchmark suite consisting of 7 benchmarks including two benchmarks for object detection models. The focus is however on the training aspects of deep learning models and does not cover inference. Dawnbench~\cite{dawnbench} is a predecessor of MLPerf covering both training and inference. In contrast to older deep learning benchmarks it uses the time to accuracy as primary metric and does not solely focus on accuracy. Inference is only a second order concern. DeepBench~\cite{deepbench} focuses on lower level aspects and hardware, in particular linear algebra level operations required for doing a forward pass on a neural network. As the inference performance also depends on these operations, there is some relevance, but other overheads, such as I/O, framework performance, are not covered by DeepBench. In contrast to the approaches referenced above this work focuses on specific image inference workloads of a real world application. Our analysis covers further important aspects of the inference pipeline, such as framework overheads, model sizes, and memory footprints.
 
-\begin{itemize}
-    \item MLPerf
-    \item DeepBench
-    \item Dawnbech
-    \item Huang~\cite{DBLP:journals/corr/HuangRSZKFFWSG016} investigates the speed/accuracy trade-off f
-\end{itemize}
 
-In contrast to the approaches referenced above our benchmark is 
+Huang et al.~\cite{huang2017speed} investigates the inference performance of different object detectors. The authors identify three meta architectures with several feature extractor and evaluate the trade-off between accuracy and inference time. In contrast to this work, it solely focuses on a generic application use case and does not cover other aspects important for production deployment, such as the memory consumption of their models.
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+    \item Trade-offs Edge vs. Cloud
+    \item Emerging inference hardware: Google's TPU, Microsoft Brainwave~\cite{brainwave}, FPGAs
+\end{itemize}
+
 
 
 \bibliographystyle{unsrt}
