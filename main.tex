@@ -434,8 +434,6 @@ mask\_rcnn\_resnet50\_atrous\_coco                              & Time (sec)    
 \label{table:raw-results}
 \end{table*}
 
-In our charts, we group SSD and SSD Lite models into a single group named ``ssd''. Other groups, named ``faster'', ``rfcn'', ``mask'' represent Faster R-CNN, R-FCN and Mask R-CNN respectively.
-
 \begin{figure*}[htpb]
 	  \centering
 	  \includegraphics[width=\textwidth]{TimeVSAccuracy}
@@ -446,7 +444,7 @@ In our charts, we group SSD and SSD Lite models into a single group named ``ssd'
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSRunning-DiffArch-Batch1}
-	  \caption{\textbf{The correlation between memory and inference time on different hardware architectureswith batch size of 1.}
+	  \caption{\textbf{The correlation between maximum GPU memory and inference time on different hardware architectureswith batch size of 1.}
           }
 	  \label{fig:memory-running-diff-arch}
 \end{figure}
@@ -454,21 +452,21 @@ In our charts, we group SSD and SSD Lite models into a single group named ``ssd'
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{MemoryVSBatch}
-	  \caption{\textbf{The correlation between memory and batch size}}
+	  \caption{\textbf{The correlation between maximum GPU memory and batch size.} }
 	  \label{fig:memory-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{RunningVSBatch}
-	  \caption{\textbf{The correlation between inference time and batch size}}
+	  \caption{\textbf{The correlation between inference time and batch size.}}
 	  \label{fig:running-batch}
 \end{figure}
 
 \begin{figure}[htpb]
 	  \centering
 	  \includegraphics[width=0.5\textwidth]{BestBatch-DiffArch}
-	  \caption{\textbf{The histogram of batch sizes that produce best inference time}}
+	  \caption{\textbf{The histogram of batch sizes that produce best inference time.}}
 	  \label{fig:bestbatch-diffarch}
 \end{figure}
 
